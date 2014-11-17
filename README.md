@@ -1,4 +1,4 @@
 smart-complete
 ==============
 
-an angularjs directive which can complete expressions or words
+This is an angularjs directive which can complete expressions for input or textarea 

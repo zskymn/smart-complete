@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html ng-app="app" ng-controller="AppCtrl">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <title>Smart Complete Demo</title>
+  <link rel="stylesheet" href="../css/smart-complete.css"></link>
+  <script src="../libs/jquery-2.0.3.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../libs/jquery.caret.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../libs/angular.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../dist/smart-complete.js" type="text/javascript" charset="utf-8"></script>
+  <script src="app.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>
+  <div style="padding: 15px; width: 400px">
+    <div style="padding: 5px 0">Demo for input</div>
+    <input smart-complete="{searchFunc: searchContacts}" style="padding: 4px; width: 400px">
+    <div style="padding: 25px 0 5px 0">Demo for textarea</div>
+    <textarea smart-complete="{searchFunc: searchContacts}" style="padding: 4px; width: 400px; height: 80px"></textarea>
+  </div>
+
+</body>
+
+</html>
