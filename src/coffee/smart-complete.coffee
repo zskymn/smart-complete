@@ -110,7 +110,7 @@ angular.module 'smart-complete', []
           sps = lv.split @sep
           sv = sps.pop()
           sps.push value
-          sps.push val.substring(pos)
+          sps.push val.substring(pos) if val.substring(pos).length > 0
           @inputor.val sps.join(@sep)
           @inputor.caret 'pos', pos + value.length - sv.length + 1
           @inputor.focus()

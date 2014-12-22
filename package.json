@@ -1,0 +1,33 @@
+{
+  "name": "smart-complete",
+  "version": "0.0.1",
+  "description": "smart-complete",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "glob": "^4.3.1",
+    "grunt": "^0.4.5",
+    "load-grunt-tasks": "^1.0.0",
+    "grunt-contrib-connect": "^0.9.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-contrib-coffee": "^0.12.0",
+    "grunt-newer": "^0.8.0",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-sass": "^0.8.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zskymn/smart-complete.git"
+  },
+  "author": "zskymn@163.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zskymn/smart-complete/issues"
+  },
+  "homepage": "https://github.com/zskymn/smart-complete"
+}
