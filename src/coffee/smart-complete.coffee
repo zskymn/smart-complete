@@ -27,6 +27,7 @@ angular.module 'smart-complete', []
       class SmartComplete
         constructor: (options) ->
           @searchFunc = options.searchFunc ? angular.noop
+          @afterSelectItemFunc = options.afterSelectItemCallback ? angular.noop
           @sep = options.separetor ? ','
           @width = options.width ? 200
           @maxHeight = options.height ? 200
@@ -34,8 +35,8 @@ angular.module 'smart-complete', []
           scDom = "<div style='position: fixed; width: #{@width}px; max-height: #{@maxHeight}px;
             top: auto; left: auto; right: auto; bottom: auto' 
             ng-show='completorShowing && results.length>0' class='smart-complete'>
-            <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' class='res-item'
-            ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value)'></div>
+            <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'
+            ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value); afterSelectItemFunc(res.value, res.label)'></div>
             </div>"
           scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin-top: 8px'></div>"
           @completorWrap = $ scWrapDom
@@ -101,6 +102,7 @@ angular.module 'smart-complete', []
               selectItems = @completor.children '.current-selected'
               if selectItems.length
                 @appendInputorVal selectItems.first().attr('value')
+                @afterSelectItemFunc selectItems.first().attr('value'), selectItems.first().attr('label')
             else return
         appendInputorVal: (value) =>
           scope.completorShowing = false
@@ -167,5 +169,6 @@ angular.module 'smart-complete', []
       sc.registerObservers()
       scope.mouseEnterItem = sc.mouseEnterItem
       scope.appendInputorVal = sc.appendInputorVal
+      scope.afterSelectItemFunc = sc.afterSelectItemFunc
       return
   ]

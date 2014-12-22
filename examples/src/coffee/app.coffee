@@ -9,4 +9,6 @@ angular.module 'app', ['smart-complete']
             value: s + i
           })
       callback(rs)
+    $scope.afterSelectUser = (value, label) ->
+      console.log value, label
   ]
