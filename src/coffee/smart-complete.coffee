@@ -52,6 +52,31 @@ angular.module 'smart-complete', []
               overflowX: 'auto'
               overflowY: 'auto'
               wordBreak: 'break-all'
+          @updateCompletor = debounce (evt) ->
+            @showCompletor()
+            pos = @inputor.caret('pos')
+            val = @inputor.val()
+            lv = val.substring(0, pos)
+            sv = lv.split(@sep).pop()
+            completorPos = @inputor.caret('offset')
+            inputorOff = @inputor.offset()
+            inputorPos = @inputor.position()
+            sepPos = @inputor.caret('offset', @inputor.caret('pos') - sv.length)
+            completorPos.top -= inputorOff.top
+            completorPos.left -= inputorOff.left
+            sepPos.top -= inputorOff.top
+            sepPos.left -= inputorOff.left
+            completorPos.left = if sepPos.top isnt completorPos.top then @inputor.caret('position', 0).left else Math.max(sepPos.left, parseInt(@inputor.css('paddingLeft'), 10))
+            @completorWrap.css
+              top:  completorPos.top + completorPos.height + inputorPos.top + 'px'
+              left: completorPos.left + inputorPos.left + 'px'
+            if @lastSearchStr isnt sv
+              scope.results = []
+              scope.$apply()
+              @searchFunc sv, @updateResults
+            @lastSearchStr = sv
+            return
+          , @wait
         registerObservers: ->
           @inputor.bind 'click.smartComplete', (evt) => @updateCompletor(evt); return
           @inputor.bind 'keyup.smartComplete', (evt) => @updateCompletor(evt); return
@@ -128,31 +153,6 @@ angular.module 'smart-complete', []
             @completor.scrollTop @completor.scrollTop() + itemTop - max
           if itemTop < min
             @completor.scrollTop @completor.scrollTop() + itemTop - min
-        updateCompletor: debounce (evt) ->
-          @showCompletor()
-          pos = @inputor.caret('pos')
-          val = @inputor.val()
-          lv = val.substring(0, pos)
-          sv = lv.split(@sep).pop()
-          completorPos = @inputor.caret('offset')
-          inputorOff = @inputor.offset()
-          inputorPos = @inputor.position()
-          sepPos = @inputor.caret('offset', @inputor.caret('pos') - sv.length)
-          completorPos.top -= inputorOff.top
-          completorPos.left -= inputorOff.left
-          sepPos.top -= inputorOff.top
-          sepPos.left -= inputorOff.left
-          completorPos.left = if sepPos.top isnt completorPos.top then @inputor.caret('position', 0).left else Math.max(sepPos.left, parseInt(@inputor.css('paddingLeft'), 10))
-          @completorWrap.css
-            top:  completorPos.top + completorPos.height + inputorPos.top + 'px'
-            left: completorPos.left + inputorPos.left + 'px'
-          if @lastSearchStr isnt sv
-            scope.results = []
-            scope.$apply()
-            @searchFunc sv, @updateResults
-          @lastSearchStr = sv
-          return
-        , @wait
         showCompletor: ->
           scope.completorShowing = true
           scope.$apply()
