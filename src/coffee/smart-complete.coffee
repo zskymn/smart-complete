@@ -26,19 +26,19 @@ angular.module 'smart-complete', []
       throw 'tagName must be input or textarea' if elem[0].tagName.toLowerCase() not in ['input', 'textarea']
       class SmartComplete
         constructor: (options) ->
+          @type = elem[0].tagName.toLowerCase()
           @searchFunc = options.searchFunc ? angular.noop
           @afterSelectItemFunc = options.afterSelectItemCallback ? angular.noop
           @sep = options.separetor ? ','
           @width = options.width ? 200
           @maxHeight = options.height ? 200
           @wait = options.wait ? 300
-          scDom = "<div style='position: fixed; width: #{@width}px; max-height: #{@maxHeight}px;
-            top: auto; left: auto; right: auto; bottom: auto' 
+          scDom = "<div style='width: #{@width}px; max-height: #{@maxHeight}px;' 
             ng-show='completorShowing && results.length>0' class='smart-complete'>
             <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'
             ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value); afterSelectItemFunc(res.value, res.label)'></div>
             </div>"
-          scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin-top: 8px'></div>"
+          scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin: 0'></div>"
           @completorWrap = $ scWrapDom
           @completor = $ scDom
           @completorWrap.append @completor
@@ -53,6 +53,7 @@ angular.module 'smart-complete', []
               overflowY: 'auto'
               wordBreak: 'break-all'
           @updateCompletor = debounce (evt) ->
+            return if evt.which is 13
             @showCompletor()
             pos = @inputor.caret('pos')
             val = @inputor.val()
@@ -68,8 +69,8 @@ angular.module 'smart-complete', []
             sepPos.left -= inputorOff.left
             completorPos.left = if sepPos.top isnt completorPos.top then @inputor.caret('position', 0).left else Math.max(sepPos.left, parseInt(@inputor.css('paddingLeft'), 10))
             @completorWrap.css
-              top:  completorPos.top + completorPos.height + inputorPos.top + 'px'
-              left: completorPos.left + inputorPos.left + 'px'
+              top:  (if @type is 'input' then inputorPos.top + @inputor.outerHeight() else completorPos.top + completorPos.height + inputorPos.top + 8) + 'px'
+              left: Math.min(completorPos.left + inputorPos.left, inputorPos.left + @inputor.outerWidth()  + 'px'
             if @lastSearchStr isnt sv
               scope.results = []
               scope.$apply()
