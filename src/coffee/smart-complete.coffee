@@ -70,7 +70,7 @@ angular.module 'smart-complete', []
             completorPos.left = if sepPos.top isnt completorPos.top then @inputor.caret('position', 0).left else Math.max(sepPos.left, parseInt(@inputor.css('paddingLeft'), 10))
             @completorWrap.css
               top:  (if @type is 'input' then inputorPos.top + @inputor.outerHeight() else completorPos.top + completorPos.height + inputorPos.top + 8) + 'px'
-              left: Math.min(completorPos.left + inputorPos.left, inputorPos.left + @inputor.outerWidth()  + 'px'
+              left: Math.min(completorPos.left + inputorPos.left, inputorPos.left + @inputor.outerWidth() - @width - 2)  + 'px'
             if @lastSearchStr isnt sv
               scope.results = []
               scope.$apply()
