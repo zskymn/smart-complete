@@ -38,7 +38,7 @@ angular.module 'smart-complete', []
             <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'
             ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value); afterSelectItemFunc(res.value, res.label)'></div>
             </div>"
-          scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin: 0'></div>"
+          scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin: 0; z-index: 99999'></div>"
           @completorWrap = $ scWrapDom
           @completor = $ scDom
           @completorWrap.append @completor
