@@ -29,7 +29,7 @@ angular.module 'smart-complete', []
           @type = elem[0].tagName.toLowerCase()
           @searchFunc = options.searchFunc ? angular.noop
           @afterSelectItemFunc = options.afterSelectItemCallback ? angular.noop
-          @sep = options.separetor ? ','
+          @sep = options.seperator ? ','
           @width = options.width ? 200
           @maxHeight = options.height ? 200
           @wait = options.wait ? 300
@@ -52,7 +52,7 @@ angular.module 'smart-complete', []
               overflowX: 'auto'
               overflowY: 'auto'
               wordBreak: 'break-all'
-          @updateCompletor = debounce (evt) ->
+          @updateCompletor = debounce (evt, alwaysUpdate) ->
             return if evt.which is 13
             @showCompletor()
             pos = @inputor.caret('pos')
@@ -71,7 +71,7 @@ angular.module 'smart-complete', []
             @completorWrap.css
               top:  (if @type is 'input' then inputorPos.top + @inputor.outerHeight() else completorPos.top + completorPos.height + inputorPos.top + 8) + 'px'
               left: Math.max(inputorPos.left,  Math.min(completorPos.left + inputorPos.left, inputorPos.left + @inputor.width() + parseInt(@inputor.css('paddingLeft')) + parseInt(@inputor.css('paddingRight')) - @width - 2))  + 'px'
-            if @lastSearchStr isnt sv
+            if @lastSearchStr isnt sv or alwaysUpdate
               scope.results = []
               scope.$apply()
               @searchFunc sv, @updateResults
@@ -79,7 +79,7 @@ angular.module 'smart-complete', []
             return
           , @wait
         registerObservers: ->
-          @inputor.bind 'click.smartComplete', (evt) => @updateCompletor(evt); return
+          @inputor.bind 'click.smartComplete', (evt) => @updateCompletor(evt, true); return
           @inputor.bind 'keyup.smartComplete', (evt) => @updateCompletor(evt); return
           @inputor.bind 'keydown.smartComplete', (evt) => @inputorKeyDown(evt); return
           @inputor.bind 'scroll.smartComplete',  => @hideCompletor(); return
