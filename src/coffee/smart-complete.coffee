@@ -34,9 +34,9 @@ angular.module 'smart-complete', []
           @maxHeight = options.height ? 200
           @wait = options.wait ? 300
           scDom = "<div style='width: #{@width}px; max-height: #{@maxHeight}px;' 
-            ng-show='completorShowing && results.length>0' class='smart-complete'>
+            ng-show='completor.showing && results.length>0' class='smart-complete'>
             <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'
-            ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value); afterSelectItemFunc(res.value, res.label)'></div>
+            ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value);afterSelectItemFunc(res.value, res.label); completor.showing=false; '></div>
             </div>"
           scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin: 0; z-index: 99999'></div>"
           @completorWrap = $ scWrapDom
@@ -53,12 +53,22 @@ angular.module 'smart-complete', []
               overflowY: 'auto'
               wordBreak: 'break-all'
           @updateCompletor = debounce (evt, alwaysUpdate) ->
-            return if evt.which is 13
-            @showCompletor()
+            if evt.which is 13
+              if scope.completor.showing
+                evt.preventDefault()
+                scope.completor.showing = false
+                scope.$apply()
+              return
+            return if evt.which in [38, 40]
             pos = @inputor.caret('pos')
             val = @inputor.val()
             lv = val.substring(0, pos)
+            @showCompletor()
             sv = lv.split(@sep).pop()
+            if val.substring(pos)
+              csv = sv + val.substring(pos).split(@sep)[0]
+            else
+              csv = sv
             completorPos = @inputor.caret('offset')
             inputorOff = @inputor.offset()
             inputorPos = @inputor.position()
@@ -71,15 +81,13 @@ angular.module 'smart-complete', []
             @completorWrap.css
               top:  (if @type is 'input' then inputorPos.top + @inputor.outerHeight() else completorPos.top + completorPos.height + inputorPos.top + 8) + 'px'
               left: Math.max(inputorPos.left,  Math.min(completorPos.left + inputorPos.left, inputorPos.left + @inputor.width() + parseInt(@inputor.css('paddingLeft')) + parseInt(@inputor.css('paddingRight')) - @width - 2))  + 'px'
-            if @lastSearchStr isnt sv or alwaysUpdate
-              scope.results = []
-              scope.$apply()
-              @searchFunc sv, @updateResults
-            @lastSearchStr = sv
+            scope.results = []
+            scope.$apply()
+            @searchFunc csv, @updateResults
             return
           , @wait
         registerObservers: ->
-          @inputor.bind 'click.smartComplete', (evt) => @updateCompletor(evt, true); return
+          @inputor.bind 'click.smartComplete', (evt) => @updateCompletor(evt); return
           @inputor.bind 'keyup.smartComplete', (evt) => @updateCompletor(evt); return
           @inputor.bind 'keydown.smartComplete', (evt) => @inputorKeyDown(evt); return
           @inputor.bind 'scroll.smartComplete',  => @hideCompletor(); return
@@ -92,6 +100,8 @@ angular.module 'smart-complete', []
           @hideCompletor() if not (@completorWrap.find(target).length or @inputor[0] is target[0])
           return
         inputorKeyDown: (evt) ->
+          return if not scope.completor.showing
+          evt.preventDefault() if evt.which is 13
           switch evt.which
             when 38
               if not @completor.children().length
@@ -101,11 +111,13 @@ angular.module 'smart-complete', []
               if selectItems.length
                 prev = selectItems.first().prev()
                 if prev.length
-                  @selectItem prev
+                  shouldSelectItem = prev
                 else
-                  @selectItem selectItems.first()
+                  shouldSelectItem = selectItems.first()
               else
-                @selectItem @completor.children().last()
+                shouldSelectItem = @completor.children().last()
+              @selectItem shouldSelectItem
+              @appendInputorVal shouldSelectItem.first().attr('value')
               return
             when 40
               if not @completor.children().length
@@ -115,32 +127,29 @@ angular.module 'smart-complete', []
               if selectItems.length
                 next = selectItems.first().next()
                 if next.length
-                  @selectItem next
+                  shouldSelectItem = next
                 else
-                  @selectItem selectItems.last()
+                  shouldSelectItem = selectItems.last()
               else
-                @selectItem @completor.children().first()
+                shouldSelectItem = @completor.children().first()
+              @selectItem shouldSelectItem
+              @appendInputorVal shouldSelectItem.first().attr('value')
               return
-            when 13
-              if not @completor.children().length
-                return
-              evt.preventDefault()
-              selectItems = @completor.children '.current-selected'
-              if selectItems.length
-                @appendInputorVal selectItems.first().attr('value')
-                @afterSelectItemFunc selectItems.first().attr('value'), selectItems.first().attr('label')
             else return
         appendInputorVal: (value) =>
-          scope.completorShowing = false
           pos = @inputor.caret 'pos'
           val = @inputor.val()
           lv = val.substring 0, pos
           sps = lv.split @sep
           sv = sps.pop()
           sps.push value
-          sps.push val.substring(pos) if val.substring(pos).length > 0
+          if val.substring(pos)
+            rps = val.substring(pos).split(@sep)
+            rps.shift()
+            if rps.join(@sep)
+              sps.push(rps.join(@sep))
           @inputor.val sps.join(@sep)
-          @inputor.caret 'pos', pos + value.length - sv.length + 1
+          @inputor.caret 'pos', pos + value.length - sv.length
           @inputor.focus()
           @inputor.trigger 'change'
           return
@@ -155,17 +164,17 @@ angular.module 'smart-complete', []
           if itemTop < min
             @completor.scrollTop @completor.scrollTop() + itemTop - min
         showCompletor: ->
-          scope.completorShowing = true
+          scope.completor.showing = true
           scope.$apply()
           return
         hideCompletor: ->
-          scope.completorShowing = false
+          scope.completor.showing = false
           scope.$apply()
           return
         updateResults: (results)->
           scope.results = results
           return
-      scope.completorShowing = false
+      scope.completor = {showing: false}
       sc = new SmartComplete $parse(attr.smartComplete)(scope)
       sc.registerObservers()
       scope.mouseEnterItem = sc.mouseEnterItem
