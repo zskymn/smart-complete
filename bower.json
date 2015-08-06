@@ -6,9 +6,14 @@
     "zskymn <zskymn@163.com>"
   ],
   "description": "An angularjs directive which can complete expressions for input or textarea",
-  "main": ["dist/smart-complete.js", "dist/smart-complete.css"],
+  "main": [
+    "dist/smart-complete.js",
+    "dist/smart-complete.css"
+  ],
   "keywords": [
-    "complete", "input", "textarea"
+    "complete",
+    "input",
+    "textarea"
   ],
   "license": "MIT",
   "ignore": [
