@@ -4,13 +4,13 @@ module.exports = () ->
       expand: true
       cwd: '<%= srcDir %>/scss'
       src: '**/*.scss'
-      dest: '<%= destDir %>/css/'
+      dest: '<%= destDir %>/'
       ext: '.css'
     }, {
       expand: true
       cwd: '<%= demo %>/src/scss'
       src: '**/*.scss'
-      dest: '<%= demo %>/dist/css/'
+      dest: '<%= demo %>/dist/'
       ext: '.css'
     }]
     options:

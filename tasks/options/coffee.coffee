@@ -4,13 +4,13 @@ module.exports = () ->
       expand: true
       cwd: '<%= srcDir %>/coffee'
       src: '**/*.coffee'
-      dest: '<%= destDir %>/js/'
+      dest: '<%= destDir %>/'
       ext: '.js'
     }, {
       expand: true
       cwd: '<%= demo %>/src/coffee'
       src: '**/*.coffee'
-      dest: '<%= demo %>/dist/js/'
+      dest: '<%= demo %>/dist/'
       ext: '.js'
     }]
     options:

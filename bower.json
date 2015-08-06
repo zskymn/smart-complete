@@ -1,0 +1,21 @@
+{
+  "name": "smart-complete",
+  "version": "1.0.0",
+  "homepage": "https://github.com/zskymn/smart-complete",
+  "authors": [
+    "zskymn <zskymn@163.com>"
+  ],
+  "description": "An angularjs directive which can complete expressions for input or textarea",
+  "main": ["dist/smart-complete.js", "dist/smart-complete.css"],
+  "keywords": [
+    "complete", "input", "textarea"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
