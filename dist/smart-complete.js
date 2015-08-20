@@ -52,7 +52,7 @@ angular.module('smart-complete', []).factory('debounce', [
             this.width = (_ref4 = options.width) != null ? _ref4 : 200;
             this.maxHeight = (_ref5 = options.height) != null ? _ref5 : 200;
             this.wait = (_ref6 = options.wait) != null ? _ref6 : 300;
-            scDom = "<div style='width: " + this.width + "px; max-height: " + this.maxHeight + "px;' ng-show='completor.showing && results.length>0' class='smart-complete'> <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item' ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value);afterSelectItemFunc(res.value, res.label); completor.showing=false; '></div> </div>";
+            scDom = "<div style='width: " + this.width + "px; max-height: " + this.maxHeight + "px;' ng-show='completor.showing && results.length>0' class='smart-complete' custom-scrollbar> <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item' ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value);afterSelectItemFunc(res.value, res.label); completor.showing=false; '></div> </div>";
             scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin: 0; z-index: 99999'></div>";
             this.completorWrap = $(scWrapDom);
             this.completor = $(scDom);

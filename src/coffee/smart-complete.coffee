@@ -34,7 +34,7 @@ angular.module 'smart-complete', []
           @maxHeight = options.height ? 200
           @wait = options.wait ? 300
           scDom = "<div style='width: #{@width}px; max-height: #{@maxHeight}px;' 
-            ng-show='completor.showing && results.length>0' class='smart-complete'>
+            ng-show='completor.showing && results.length>0' class='smart-complete' custom-scrollbar>
             <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'
             ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value);afterSelectItemFunc(res.value, res.label); completor.showing=false; '></div>
             </div>"
