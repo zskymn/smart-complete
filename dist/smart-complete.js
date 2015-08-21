@@ -1,7 +1,12 @@
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+var __bind = function(fn, me) {
+  return function() {
+    return fn.apply(me, arguments);
+  };
+};
 
 angular.module('smart-complete', []).factory('debounce', [
-  '$timeout', '$q', function($timeout, $q) {
+  '$timeout', '$q',
+  function($timeout, $q) {
     return function(func, wait, immediate) {
       var deferred, timeout;
       timeout = null;
@@ -31,7 +36,8 @@ angular.module('smart-complete', []).factory('debounce', [
     };
   }
 ]).directive('smartComplete', [
-  '$compile', '$parse', 'debounce', '$timeout', function($compile, $parse, debounce, $timeout) {
+  '$compile', '$parse', 'debounce', '$timeout',
+  function($compile, $parse, debounce) {
     return {
       restict: 'A',
       scope: true,
@@ -52,7 +58,11 @@ angular.module('smart-complete', []).factory('debounce', [
             this.width = (_ref4 = options.width) != null ? _ref4 : 200;
             this.maxHeight = (_ref5 = options.height) != null ? _ref5 : 200;
             this.wait = (_ref6 = options.wait) != null ? _ref6 : 300;
-            scDom = "<div style='width: " + this.width + "px; max-height: " + this.maxHeight + "px;' ng-show='completor.showing && results.length>0' class='smart-complete' custom-scrollbar> <div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item' ng-mouseenter='mouseEnterItem($event)' ng-click='appendInputorVal(res.value);afterSelectItemFunc(res.value, res.label); completor.showing=false; '></div> </div>";
+            scDom = "<div style='width: " + this.width + "px; max-height: " + this.maxHeight +
+              "px;' ng-show='completor.showing && results.length>0' class='smart-complete' custom-scrollbar>" +
+              "<div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'" +
+              " ng-mouseenter='mouseEnterItem($event)'" +
+              "ng-click='appendInputorVal(res.value);afterSelectItemFunc(res.value, res.label); completor.showing=false;'></div> </div>";
             scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin: 0; z-index: 99999'></div>";
             this.completorWrap = $(scWrapDom);
             this.completor = $(scDom);
@@ -70,7 +80,7 @@ angular.module('smart-complete', []).factory('debounce', [
                 wordBreak: 'break-all'
               });
             }
-            this.updateCompletor = debounce(function(evt, alwaysUpdate) {
+            this.updateCompletor = debounce(function(evt) {
               var completorPos, csv, inputorOff, inputorPos, lv, pos, sepPos, sv, val, _ref7;
               if (evt.which === 13) {
                 if (scope.completor.showing) {
@@ -106,7 +116,12 @@ angular.module('smart-complete', []).factory('debounce', [
               completorPos.left = sepPos.top !== completorPos.top ? this.inputor.caret('position', 0).left : Math.max(sepPos.left, parseInt(this.inputor.css('paddingLeft'), 10));
               this.completorWrap.css({
                 top: (this.type === 'input' ? inputorPos.top + this.inputor.outerHeight() : completorPos.top + completorPos.height + inputorPos.top + 6) + 'px',
-                left: Math.max(inputorPos.left, Math.min(completorPos.left + inputorPos.left, inputorPos.left + this.inputor.width() + parseInt(this.inputor.css('paddingLeft')) + parseInt(this.inputor.css('paddingRight')) - this.width - 2)) + 'px'
+                left: Math.max(
+                  inputorPos.left,
+                  Math.min(
+                    completorPos.left + inputorPos.left,
+                    inputorPos.left + this.inputor.width() + parseInt(this.inputor.css('paddingLeft')) + parseInt(this.inputor.css('paddingRight')) - this.width - 2)
+                ) + 'px'
               });
               scope.results = [];
               scope.$apply();
@@ -229,15 +244,35 @@ angular.module('smart-complete', []).factory('debounce', [
             var itemTop, max, min;
             this.completor.find('.res-item').removeClass('current-selected');
             item.addClass('current-selected');
-            itemTop = item.position().top;
-            min = 0;
-            max = this.completor.height() - item.height();
-            if (itemTop > max) {
-              this.completor.scrollTop(this.completor.scrollTop() + itemTop - max);
+            var mCustomScrollBox = this.completor.find('.mCustomScrollBox');
+            if (mCustomScrollBox.length > 0) {
+              var mCSBContainer = this.completor.find('.mCSB_container'),
+                itemPos = mCSBContainer.position().top + item.position().top,
+                itemHeight = item.height(),
+                mCustomScrollBoxHeight = mCustomScrollBox.height();
+              if (itemPos < 0 || itemPos > (mCustomScrollBoxHeight - itemHeight)) {
+                if (item.position().top + mCustomScrollBoxHeight > mCSBContainer.height()) {
+                  this.completor.mCustomScrollbar('scrollTo', 'bottom');
+                } else if (item.position().top < mCustomScrollBoxHeight) {
+                  this.completor.mCustomScrollbar('scrollTo', 'top');
+                } else if (itemPos < 0) {
+                  this.completor.mCustomScrollbar('scrollTo', item.position().top - mCustomScrollBoxHeight + itemHeight + 2);
+                } else if (itemPos > (mCustomScrollBoxHeight - itemHeight)) {
+                  this.completor.mCustomScrollbar('scrollTo', item.position().top);
+                }
+              }
+            } else {
+              itemTop = item.position().top;
+              min = 0;
+              max = this.completor.height() - item.height();
+              if (itemTop > max) {
+                this.completor.scrollTop(this.completor.scrollTop() + itemTop - max);
+              }
+              if (itemTop < min) {
+                return this.completor.scrollTop(this.completor.scrollTop() + itemTop - min);
+              }
             }
-            if (itemTop < min) {
-              return this.completor.scrollTop(this.completor.scrollTop() + itemTop - min);
-            }
+
           };
 
           SmartComplete.prototype.showCompletor = function() {

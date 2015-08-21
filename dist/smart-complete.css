@@ -1,11 +1,12 @@
 .smart-complete {
-  background-color: white;
+  background-color: #FFFFFF;
   box-shadow: 0 4px 5px rgba(0, 0, 0, 0.15);
   border: 1px solid #aaa;
   overflow: auto;
   padding: 5px 2px;
   z-index: 9999;
   overflow-x: hidden;
+  -epub-word-break: break-all;
   word-break: break-all;
   word-wrap: break-word;
   font-size: 12px;
@@ -17,7 +18,7 @@
 }
 
 .smart-complete .res-item.current-selected {
-  color: white;
+  color: #FFFFFF;
   background-color: #438eb9;
   cursor: pointer;
 }
