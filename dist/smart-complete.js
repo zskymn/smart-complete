@@ -96,6 +96,8 @@ angular.module('smart-complete', []).factory('debounce', [
               completorPos = this.inputor.caret('offset');
               inputorOff = this.inputor.offset();
               inputorPos = this.inputor.position();
+              inputorPos.top += parseInt(this.inputor.css('marginTop'), 10);
+              inputorPos.left += parseInt(this.inputor.css('marginLeft'), 10);
               sepPos = this.inputor.caret('offset', this.inputor.caret('pos') - sv.length);
               completorPos.top -= inputorOff.top;
               completorPos.left -= inputorOff.left;
@@ -103,7 +105,7 @@ angular.module('smart-complete', []).factory('debounce', [
               sepPos.left -= inputorOff.left;
               completorPos.left = sepPos.top !== completorPos.top ? this.inputor.caret('position', 0).left : Math.max(sepPos.left, parseInt(this.inputor.css('paddingLeft'), 10));
               this.completorWrap.css({
-                top: (this.type === 'input' ? inputorPos.top + this.inputor.outerHeight() + parseInt(this.inputor.css('marginTop'), 10) : completorPos.top + completorPos.height + inputorPos.top + parseInt(this.inputor.css('marginTop'), 10) + 6) + 'px',
+                top: (this.type === 'input' ? inputorPos.top + this.inputor.outerHeight() : completorPos.top + completorPos.height + inputorPos.top + 6) + 'px',
                 left: Math.max(inputorPos.left, Math.min(completorPos.left + inputorPos.left, inputorPos.left + this.inputor.width() + parseInt(this.inputor.css('paddingLeft')) + parseInt(this.inputor.css('paddingRight')) - this.width - 2)) + 'px'
               });
               scope.results = [];
