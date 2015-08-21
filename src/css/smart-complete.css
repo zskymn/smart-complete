@@ -1,0 +1,23 @@
+.smart-complete {
+  background-color: white;
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.15);
+  border: 1px solid #aaa;
+  overflow: auto;
+  padding: 5px 2px;
+  z-index: 9999;
+  overflow-x: hidden;
+  word-break: break-all;
+  word-wrap: break-word;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.smart-complete .res-item {
+  padding: 2px 6px;
+}
+
+.smart-complete .res-item.current-selected {
+  color: white;
+  background-color: #438eb9;
+  cursor: pointer;
+}
