@@ -43,7 +43,8 @@ angular.module 'smart-complete', []
           @completor = $ scDom
           @completorWrap.append @completor
           @inputor = elem
-          @inputor.after $compile(@completorWrap) scope
+          @inputor.after @completorWrap
+          $compile(@completorWrap) scope
           @parent = @inputor.parent()
           @inputor.css 'font-size', @inputor.css('font-size')
           if @inputor.prop('tagName').toLowerCase() is 'textarea'
@@ -104,10 +105,10 @@ angular.module 'smart-complete', []
           evt.preventDefault() if evt.which is 13
           switch evt.which
             when 38
-              if not @completor.children().length
+              if not @completor.find('.res-item').length
                 return
               evt.preventDefault()
-              selectItems = @completor.children '.current-selected'
+              selectItems = @completor.find '.current-selected'
               if selectItems.length
                 prev = selectItems.first().prev()
                 if prev.length
@@ -115,15 +116,15 @@ angular.module 'smart-complete', []
                 else
                   shouldSelectItem = selectItems.first()
               else
-                shouldSelectItem = @completor.children().last()
+                shouldSelectItem = @completor.find('.res-item').last()
               @selectItem shouldSelectItem
               @appendInputorVal shouldSelectItem.first().attr('value')
               return
             when 40
-              if not @completor.children().length
+              if not @completor.find('.res-item').length
                 return
               evt.preventDefault()
-              selectItems = @completor.children '.current-selected'
+              selectItems = @completor.find '.current-selected'
               if selectItems.length
                 next = selectItems.first().next()
                 if next.length
@@ -131,7 +132,7 @@ angular.module 'smart-complete', []
                 else
                   shouldSelectItem = selectItems.last()
               else
-                shouldSelectItem = @completor.children().first()
+                shouldSelectItem = @completor.find('.res-item').first()
               @selectItem shouldSelectItem
               @appendInputorVal shouldSelectItem.first().attr('value')
               return
@@ -154,7 +155,7 @@ angular.module 'smart-complete', []
           @inputor.trigger 'change'
           return
         selectItem: (item) ->
-          @completor.children().removeClass 'current-selected'
+          @completor.find('.res-item').removeClass 'current-selected'
           item.addClass 'current-selected'
           itemTop = item.position().top
           min = 0

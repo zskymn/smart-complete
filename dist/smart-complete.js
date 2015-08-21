@@ -58,7 +58,8 @@ angular.module('smart-complete', []).factory('debounce', [
             this.completor = $(scDom);
             this.completorWrap.append(this.completor);
             this.inputor = elem;
-            this.inputor.after($compile(this.completorWrap)(scope));
+            this.inputor.after(this.completorWrap);
+            $compile(this.completorWrap)(scope);
             this.parent = this.inputor.parent();
             this.inputor.css('font-size', this.inputor.css('font-size'));
             if (this.inputor.prop('tagName').toLowerCase() === 'textarea') {
@@ -161,11 +162,11 @@ angular.module('smart-complete', []).factory('debounce', [
             }
             switch (evt.which) {
               case 38:
-                if (!this.completor.children().length) {
+                if (!this.completor.find('.res-item').length) {
                   return;
                 }
                 evt.preventDefault();
-                selectItems = this.completor.children('.current-selected');
+                selectItems = this.completor.find('.current-selected');
                 if (selectItems.length) {
                   prev = selectItems.first().prev();
                   if (prev.length) {
@@ -174,17 +175,17 @@ angular.module('smart-complete', []).factory('debounce', [
                     shouldSelectItem = selectItems.first();
                   }
                 } else {
-                  shouldSelectItem = this.completor.children().last();
+                  shouldSelectItem = this.completor.find('.res-item').last();
                 }
                 this.selectItem(shouldSelectItem);
                 this.appendInputorVal(shouldSelectItem.first().attr('value'));
                 break;
               case 40:
-                if (!this.completor.children().length) {
+                if (!this.completor.find('.res-item').length) {
                   return;
                 }
                 evt.preventDefault();
-                selectItems = this.completor.children('.current-selected');
+                selectItems = this.completor.find('.current-selected');
                 if (selectItems.length) {
                   next = selectItems.first().next();
                   if (next.length) {
@@ -193,7 +194,7 @@ angular.module('smart-complete', []).factory('debounce', [
                     shouldSelectItem = selectItems.last();
                   }
                 } else {
-                  shouldSelectItem = this.completor.children().first();
+                  shouldSelectItem = this.completor.find('.res-item').first();
                 }
                 this.selectItem(shouldSelectItem);
                 this.appendInputorVal(shouldSelectItem.first().attr('value'));
@@ -224,7 +225,7 @@ angular.module('smart-complete', []).factory('debounce', [
 
           SmartComplete.prototype.selectItem = function(item) {
             var itemTop, max, min;
-            this.completor.children().removeClass('current-selected');
+            this.completor.find('.res-item').removeClass('current-selected');
             item.addClass('current-selected');
             itemTop = item.position().top;
             min = 0;
