@@ -80,7 +80,7 @@ angular.module 'smart-complete', []
             sepPos.left -= inputorOff.left
             completorPos.left = if sepPos.top isnt completorPos.top then @inputor.caret('position', 0).left else Math.max(sepPos.left, parseInt(@inputor.css('paddingLeft'), 10))
             @completorWrap.css
-              top:  (if @type is 'input' then inputorPos.top + @inputor.outerHeight() else completorPos.top + completorPos.height + inputorPos.top + 8) + 'px'
+              top:  (if @type is 'input' then inputorPos.top + @inputor.outerHeight() + parseInt(@inputor.css('marginTop'), 10) else completorPos.top + completorPos.height + inputorPos.top + parseInt(@inputor.css('marginTop'), 10) + 6) + 'px'
               left: Math.max(inputorPos.left,  Math.min(completorPos.left + inputorPos.left, inputorPos.left + @inputor.width() + parseInt(@inputor.css('paddingLeft')) + parseInt(@inputor.css('paddingRight')) - @width - 2))  + 'px'
             scope.results = []
             scope.$apply()
