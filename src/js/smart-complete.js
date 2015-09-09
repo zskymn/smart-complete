@@ -59,7 +59,7 @@ angular.module('smart-complete', []).factory('debounce', [
             this.maxHeight = (_ref5 = options.height) != null ? _ref5 : 200;
             this.wait = (_ref6 = options.wait) != null ? _ref6 : 300;
             scDom = "<div style='width: " + this.width + "px; max-height: " + this.maxHeight +
-              "px;' ng-show='completor.showing && results.length>0' class='smart-complete' custom-scrollbar>" +
+              "px;' ng-show='completor.showing && results.length>0' class='smart-complete'>" +
               "<div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'" +
               " ng-mouseenter='mouseEnterItem($event)'" +
               "ng-click='appendInputorVal(res.value);afterSelectItemFunc(res.value, res.label); completor.showing=false;'></div> </div>";
@@ -244,33 +244,14 @@ angular.module('smart-complete', []).factory('debounce', [
             var itemTop, max, min;
             this.completor.find('.res-item').removeClass('current-selected');
             item.addClass('current-selected');
-            var mCustomScrollBox = this.completor.find('.mCustomScrollBox');
-            if (mCustomScrollBox.length > 0) {
-              var mCSBContainer = this.completor.find('.mCSB_container'),
-                itemPos = mCSBContainer.position().top + item.position().top,
-                itemHeight = item.height(),
-                mCustomScrollBoxHeight = mCustomScrollBox.height();
-              if (itemPos < 0 || itemPos > (mCustomScrollBoxHeight - itemHeight)) {
-                if (item.position().top + mCustomScrollBoxHeight > mCSBContainer.height()) {
-                  this.completor.mCustomScrollbar('scrollTo', 'bottom');
-                } else if (item.position().top < mCustomScrollBoxHeight) {
-                  this.completor.mCustomScrollbar('scrollTo', 'top');
-                } else if (itemPos < 0) {
-                  this.completor.mCustomScrollbar('scrollTo', item.position().top - mCustomScrollBoxHeight + itemHeight + 2);
-                } else if (itemPos > (mCustomScrollBoxHeight - itemHeight)) {
-                  this.completor.mCustomScrollbar('scrollTo', item.position().top);
-                }
-              }
-            } else {
-              itemTop = item.position().top;
-              min = 0;
-              max = this.completor.height() - item.height();
-              if (itemTop > max) {
-                this.completor.scrollTop(this.completor.scrollTop() + itemTop - max);
-              }
-              if (itemTop < min) {
-                return this.completor.scrollTop(this.completor.scrollTop() + itemTop - min);
-              }
+            itemTop = item.position().top;
+            min = 0;
+            max = this.completor.height() - item.height();
+            if (itemTop > max) {
+              this.completor.scrollTop(this.completor.scrollTop() + itemTop - max);
+            }
+            if (itemTop < min) {
+              return this.completor.scrollTop(this.completor.scrollTop() + itemTop - min);
             }
 
           };
