@@ -50,10 +50,8 @@ angular.module('smart-complete', []).factory('debounce', [
           function SmartComplete(options) {
             this.appendInputorVal = __bind(this.appendInputorVal, this);
             this.mouseEnterItem = __bind(this.mouseEnterItem, this);
-            var scDom, scWrapDom, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+            var scDom, scWrapDom, _ref3, _ref4, _ref5, _ref6;
             this.type = elem[0].tagName.toLowerCase();
-            this.searchFunc = (_ref1 = options.searchFunc) != null ? _ref1 : angular.noop;
-            this.afterSelectItemFunc = (_ref2 = options.afterSelectItemCallback) != null ? _ref2 : angular.noop;
             this.sep = (_ref3 = options.seperator) != null ? _ref3 : ',';
             this.width = (_ref4 = options.width) != null ? _ref4 : 200;
             this.maxHeight = (_ref5 = options.height) != null ? _ref5 : 200;
@@ -62,7 +60,7 @@ angular.module('smart-complete', []).factory('debounce', [
               "px;' ng-show='completor.showing && results.length>0' class='smart-complete'>" +
               "<div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'" +
               " ng-mouseenter='mouseEnterItem($event)'" +
-              "ng-click='appendInputorVal(res.value);afterSelectItemFunc(res.value, res.label); completor.showing=false;'></div> </div>";
+              "ng-click='afterSelectItem(res)'></div> </div>";
             scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin: 0; z-index: 99999'></div>";
             this.completorWrap = $(scWrapDom);
             this.completor = $(scDom);
@@ -125,7 +123,7 @@ angular.module('smart-complete', []).factory('debounce', [
               });
               scope.results = [];
               scope.$apply();
-              this.searchFunc(csv, this.updateResults);
+              ($parse(attr.smartComplete)(scope).searchFunc || angular.noop)(csv, this.updateResults);
             }, this.wait);
           }
 
@@ -280,7 +278,11 @@ angular.module('smart-complete', []).factory('debounce', [
         sc.registerObservers();
         scope.mouseEnterItem = sc.mouseEnterItem;
         scope.appendInputorVal = sc.appendInputorVal;
-        scope.afterSelectItemFunc = sc.afterSelectItemFunc;
+        scope.afterSelectItem = function(res) {
+          scope.appendInputorVal(res.value);
+          ($parse(attr.smartComplete)(scope).afterSelectItemCallback || angular.noop)(res.value, res.label);
+          scope.completor.showing = false;
+        };
       }
     };
   }
