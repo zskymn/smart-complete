@@ -11,6 +11,8 @@
   word-wrap: break-word;
   font-size: 12px;
   line-height: 16px;
+  -moz-box-sizing: border-box;
+       box-sizing: border-box;
 }
 
 .smart-complete .res-item {

@@ -10,6 +10,7 @@
   word-wrap: break-word;
   font-size: 12px;
   line-height: 16px;
+  box-sizing: border-box;
 }
 
 .smart-complete .res-item {

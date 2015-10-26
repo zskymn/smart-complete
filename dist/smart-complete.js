@@ -112,15 +112,25 @@ angular.module('smart-complete', []).factory('debounce', [
               sepPos.top -= inputorOff.top;
               sepPos.left -= inputorOff.left;
               completorPos.left = sepPos.top !== completorPos.top ? this.inputor.caret('position', 0).left : Math.max(sepPos.left, parseInt(this.inputor.css('paddingLeft'), 10));
-              this.completorWrap.css({
-                top: (this.type === 'input' ? inputorPos.top + this.inputor.outerHeight() : completorPos.top + completorPos.height + inputorPos.top + 6) + 'px',
-                left: Math.max(
-                  inputorPos.left,
-                  Math.min(
-                    completorPos.left + inputorPos.left,
-                    inputorPos.left + this.inputor.width() + parseInt(this.inputor.css('paddingLeft')) + parseInt(this.inputor.css('paddingRight')) - this.width - 2)
-                ) + 'px'
-              });
+              if (this.width === '100%' && this.type === 'input') {
+                this.completorWrap.css({
+                  top: inputorPos.top + this.inputor.outerHeight(),
+                  left: inputorPos.left
+                });
+                this.completor.css({
+                  width: this.inputor.outerWidth() + 'px'
+                });
+              } else {
+                this.completorWrap.css({
+                  top: (this.type === 'input' ? inputorPos.top + this.inputor.outerHeight() : completorPos.top + completorPos.height + inputorPos.top + 6) + 'px',
+                  left: Math.max(
+                    inputorPos.left,
+                    Math.min(
+                      completorPos.left + inputorPos.left,
+                      inputorPos.left + this.inputor.width() + parseInt(this.inputor.css('paddingLeft')) + parseInt(this.inputor.css('paddingRight')) - this.width - 2)
+                  ) + 'px'
+                });
+              }
               scope.results = [];
               scope.$apply();
               ($parse(attr.smartComplete)(scope).searchFunc || angular.noop)(csv, this.updateResults);
