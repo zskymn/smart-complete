@@ -1,24 +1,48 @@
 <!DOCTYPE HTML>
-<html ng-app="app" ng-controller="AppCtrl">
+<html ng-app="app"
+  ng-controller="AppCtrl">
 
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="content-type"
+    content="text/html; charset=utf-8">
 
   <title>Smart Complete Demo</title>
-  <link rel="stylesheet" href="../dist/smart-complete.css"></link>
-  <script src="../libs/jquery-2.0.3.js" type="text/javascript" charset="utf-8"></script>
-  <script src="../libs/jquery.caret.js" type="text/javascript" charset="utf-8"></script>
-  <script src="../libs/angular.js" type="text/javascript" charset="utf-8"></script>
-  <script src="../dist/smart-complete.js" type="text/javascript" charset="utf-8"></script>
-  <script src="app.js" type="text/javascript" charset="utf-8"></script>
+  <link rel="stylesheet"
+    href="../dist/smart-complete.css"></link>
+  <script src="../libs/jquery-2.0.3.js"
+    type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../libs/jquery.caret.js"
+    type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../libs/angular.js"
+    type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../dist/smart-complete.js"
+    type="text/javascript"
+    charset="utf-8"></script>
+  <script src="app.js"
+    type="text/javascript"
+    charset="utf-8"></script>
 </head>
 
 <body>
-  <div style="padding: 15px; width: 400px">
-    <div style="padding: 5px 0">Demo for input</div>
-    <input smart-complete="{searchFunc: searchContacts, afterSelectItemCallback: afterSelectUser, width: '300'}" style="padding: 4px; width: 400px; margin-top: 10px">
+  <div style="padding: 15px; width: 500px">
+    <span>Demo for input: </span>
+    <input smart-complete="searchContacts"
+      sc-sep="','"
+      sc-width="'100%'"
+      sc-item-click-cb="afterSelectUser"
+      ng-model="aaa"
+      style="padding: 4px; width: 300px; margin-top: 10px">
+
+      <div>{{aaa}}</div>
     <div style="padding: 25px 0 5px 0">Demo for textarea</div>
-    <textarea smart-complete="{searchFunc: searchContacts}" style="padding: 4px; width: 400px; height: 80px; margin-top:10px"></textarea>
+    <textarea smart-complete="searchContacts"
+      sc-sep="','"
+      sc-height="'400'"
+      sc-width="'160'"
+      style="padding: 4px; width: 400px; height: 80px; margin-top:10px"></textarea>
   </div>
 
 </body>

@@ -1,24 +1,25 @@
-.smart-complete {
-  background-color: white;
+ul.smart-complete {
+  position: absolute;
+  z-index: 9999;
+  overflow: auto;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  background: white;
   box-shadow: 0 4px 5px rgba(0, 0, 0, 0.15);
   border: 1px solid #aaa;
-  overflow: auto;
-  padding: 5px 2px;
-  z-index: 9999;
-  overflow-x: hidden;
+  padding: 5px 0;
+  margin: 0;
   word-break: break-all;
   word-wrap: break-word;
-  font-size: 12px;
-  line-height: 16px;
-  box-sizing: border-box;
-}
-
-.smart-complete .res-item {
-  padding: 2px 6px;
-}
-
-.smart-complete .res-item.current-selected {
-  color: white;
-  background-color: #438eb9;
-  cursor: pointer;
+  font-size: 14px;
+  line-height: 18px;
+  li {
+    padding: 4px 10px;
+    &.current-selected {
+      color: white;
+      background-color: #438eb9;
+      cursor: pointer;
+    }
+  }
 }

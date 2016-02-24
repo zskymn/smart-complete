@@ -8,7 +8,10 @@ var gulp = require('gulp'),
   precss = require('precss'),
   assets = require('postcss-assets'),
   rucksack = require('rucksack-css'),
-  connect = require('gulp-connect');
+  connect = require('gulp-connect'),
+  header = require('gulp-header'),
+  footer = require('gulp-footer'),
+  KarmaServer = require('karma').Server;
 
 var srcDir = 'src',
   destDir = 'dist';
@@ -28,8 +31,8 @@ gulp.src = function() {
     }));
 };
 
-gulp.task('clean', function(cb) {
-  del([destDir + '/*'], cb);
+gulp.task('clean', function() {
+  return del([destDir + '/*']);
 });
 
 gulp.task('css', function() {
@@ -45,6 +48,19 @@ gulp.task('css', function() {
 
 gulp.task('js', function() {
   return gulp.src(srcDir + '/js/smart-complete.js')
+    .pipe(header([
+      "(function(root, factory) {",
+      "  if (typeof define === 'function' && define.amd) {",
+      "    define(['jquery', 'angular'], factory);",
+      "  } else if (typeof module === 'object' && module.exports) {",
+      "    module.exports = factory(require('jquery'), require('angular'));",
+      "  } else {",
+      "    factory(root.jQuery, root.angular);",
+      "  }",
+      "}(this, function($, angular){",
+      ""
+    ].join('\n')))
+    .pipe(footer("}));"))
     .pipe(gulp.dest(destDir));
 });
 
@@ -67,6 +83,14 @@ gulp.task('connect', function() {
   });
 });
 
+gulp.task('test', function(done) {
+  new KarmaServer({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: false
+  }, function() {
+    done();
+  }).start();
+});
 
 gulp.task('default', function(cb) {
   runSequence('clean', ['js', 'css'], 'connect', 'watch', cb);

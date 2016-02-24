@@ -1,299 +1,290 @@
-var __bind = function(fn, me) {
-  return function() {
-    return fn.apply(me, arguments);
-  };
-};
+angular
+  .module('smart-complete', []);
 
-angular.module('smart-complete', []).factory('debounce', [
-  '$timeout', '$q',
-  function($timeout, $q) {
-    return function(func, wait, immediate) {
-      var deferred, timeout;
-      timeout = null;
-      deferred = $q.defer();
+angular
+  .module('smart-complete')
+  .service('$scUtil', function($timeout, $q) {
+    var vm = this;
+    vm.debounce = debounce;
+    vm.noopSearchFunc = noopSearchFunc;
+
+    function debounce(func, wait) {
+      var timeoutPromise = null;
+      if (wait !== 0 && !wait) {
+        wait = 300;
+      }
       return function() {
-        var args, callNow, context, later;
-        context = this;
-        args = arguments;
-        later = function() {
-          timeout = null;
-          if (!immediate) {
-            deferred.resolve(func.apply(context, args));
-            return deferred = $q.defer();
-          }
-        };
-        callNow = immediate && !timeout;
-        if (timeout) {
-          $timeout.cancel(timeout);
-        }
-        timeout = $timeout(later, wait);
-        if (callNow) {
-          deferred.resolve(func.apply(context, args));
-          deferred = $q.defer();
-        }
-        return deferred.promise;
+        var context = this,
+          args = arguments;
+        $timeout.cancel(timeoutPromise);
+        return (timeoutPromise = $timeout(function() {
+          return func.apply(context, args);
+        }, wait));
       };
-    };
-  }
-]).directive('smartComplete', [
-  '$compile', '$parse', 'debounce', '$timeout',
-  function($compile, $parse, debounce) {
+    }
+
+    function noopSearchFunc() {
+      return $q.when([]);
+    }
+  });
+
+angular
+  .module('smart-complete')
+  .directive('smartComplete', function($parse, $scUtil, $timeout) {
     return {
-      restict: 'A',
-      scope: true,
-      link: function(scope, elem, attr) {
-        var SmartComplete, sc, _ref;
-        if ((_ref = elem[0].tagName.toLowerCase()) !== 'input' && _ref !== 'textarea') {
-          throw 'tagName must be input or textarea';
+      restrict: 'A',
+      link: function(scope, elem, attrs) {
+        var tagName, __searchFunc, __sep, __width, __height, __itemClickCb, __enterCb, $$completor, selectedClass = 'current-selected';
+        activate();
+
+        function activate() {
+          tagName = elem[0].tagName.toLowerCase();
+          __searchFunc = $parse(attrs.smartComplete);
+          __sep = $parse(attrs.scSep);
+          __width = $parse(attrs.scWidth);
+          __height = $parse(attrs.scHeight);
+          __itemClickCb = $parse(attrs.scItemClickCb);
+          __enterCb = $parse(attrs.scEnterCb);
+
+          if (tagName !== 'input' && tagName !== 'textarea') {
+            throw 'tagName must be input or textarea';
+          }
+          $$completor = $('<ul class="smart-complete"></ul>');
+          elem.after($$completor);
+          initStyle();
+          registObservers();
         }
-        SmartComplete = (function() {
-          function SmartComplete(options) {
-            this.appendInputorVal = __bind(this.appendInputorVal, this);
-            this.mouseEnterItem = __bind(this.mouseEnterItem, this);
-            var scDom, scWrapDom, _ref3, _ref4, _ref5, _ref6;
-            this.type = elem[0].tagName.toLowerCase();
-            this.sep = (_ref3 = options.seperator) != null ? _ref3 : ',';
-            this.width = (_ref4 = options.width) != null ? _ref4 : 200;
-            this.maxHeight = (_ref5 = options.height) != null ? _ref5 : 200;
-            this.wait = (_ref6 = options.wait) != null ? _ref6 : 300;
-            scDom = "<div style='width: " + this.width + "px; max-height: " + this.maxHeight +
-              "px;' ng-show='completor.showing && results.length>0' class='smart-complete'>" +
-              "<div ng-repeat='res in results' ng-bind='res.label' value='{{res.value}}' label='{{res.label}}' class='res-item'" +
-              " ng-mouseenter='mouseEnterItem($event)'" +
-              "ng-click='afterSelectItem(res)'></div> </div>";
-            scWrapDom = "<div style='position: absolute; width: 0; height: 0; padding: 0; margin: 0; z-index: 99999'></div>";
-            this.completorWrap = $(scWrapDom);
-            this.completor = $(scDom);
-            this.completorWrap.append(this.completor);
-            this.inputor = elem;
-            this.inputor.after(this.completorWrap);
-            $compile(this.completorWrap)(scope);
-            this.parent = this.inputor.parent();
-            this.inputor.css('font-size', this.inputor.css('font-size'));
-            if (this.inputor.prop('tagName').toLowerCase() === 'textarea') {
-              this.inputor.css({
-                overflow: 'auto',
-                overflowX: 'auto',
-                overflowY: 'auto',
-                wordBreak: 'break-all'
-              });
-            }
-            this.updateCompletor = debounce(function(evt) {
-              var completorPos, csv, inputorOff, inputorPos, lv, pos, sepPos, sv, val, _ref7;
-              if (evt.which === 13) {
-                if (scope.completor.showing) {
+
+        function initStyle() {
+          elem.css('font-size', elem.css('font-size'));
+          if (tagName === 'textarea') {
+            elem.css({
+              overflow: 'auto',
+              overflowX: 'auto',
+              overflowY: 'auto',
+              wordBreak: 'break-all'
+            });
+          }
+          $$completor.hide();
+        }
+
+        function registObservers() {
+          elem
+            .off('click.sc')
+            .on('click.sc', updateCompletorItems)
+            .off('keyup.sc')
+            .on('keyup.sc', $scUtil.debounce(function(evt) {
+              var code = evt.which;
+              if (code === 13 || code === 38 || code === 40 || code === 9) {
+                return;
+              }
+              updateCompletorItems();
+            }))
+            .off('keydown.sc')
+            .on('keydown.sc', function(evt) {
+              var code = evt.which,
+                isUp;
+              if (code === 13) {
+                if ($$completor.is(':visible')) {
                   evt.preventDefault();
-                  scope.completor.showing = false;
-                  scope.$apply();
+                  $$completor.hide();
+                }
+                $timeout(function() {
+                  (__enterCb(scope) || angular.noop)(elem.val());
+                });
+                return;
+              } else if (code === 9) {
+                if ($$completor.is(':visible')) {
+                  $$completor.hide();
                 }
                 return;
-              }
-              if ((_ref7 = evt.which) === 38 || _ref7 === 40) {
+              } else if (code === 38) {
+                isUp = true;
+              } else if (code === 40) {
+                isUp = false;
+              } else {
                 return;
               }
-              pos = this.inputor.caret('pos');
-              val = this.inputor.val();
-              lv = val.substring(0, pos);
-              this.showCompletor();
-              sv = lv.split(this.sep).pop();
-              if (val.substring(pos)) {
-                csv = sv + val.substring(pos).split(this.sep)[0];
-              } else {
-                csv = sv;
-              }
-              completorPos = this.inputor.caret('offset');
-              inputorOff = this.inputor.offset();
-              inputorPos = this.inputor.position();
-              inputorPos.top += parseInt(this.inputor.css('marginTop'), 10);
-              inputorPos.left += parseInt(this.inputor.css('marginLeft'), 10);
-              sepPos = this.inputor.caret('offset', this.inputor.caret('pos') - sv.length);
-              completorPos.top -= inputorOff.top;
-              completorPos.left -= inputorOff.left;
-              sepPos.top -= inputorOff.top;
-              sepPos.left -= inputorOff.left;
-              completorPos.left = sepPos.top !== completorPos.top ? this.inputor.caret('position', 0).left : Math.max(sepPos.left, parseInt(this.inputor.css('paddingLeft'), 10));
-              if (this.width === '100%' && this.type === 'input') {
-                this.completorWrap.css({
-                  top: inputorPos.top + this.inputor.outerHeight(),
-                  left: inputorPos.left
-                });
-                this.completor.css({
-                  width: this.inputor.outerWidth() + 'px'
-                });
-              } else {
-                this.completorWrap.css({
-                  top: (this.type === 'input' ? inputorPos.top + this.inputor.outerHeight() : completorPos.top + completorPos.height + inputorPos.top + 6) + 'px',
-                  left: Math.max(
-                    inputorPos.left,
-                    Math.min(
-                      completorPos.left + inputorPos.left,
-                      inputorPos.left + this.inputor.width() + parseInt(this.inputor.css('paddingLeft')) + parseInt(this.inputor.css('paddingRight')) - this.width - 2)
-                  ) + 'px'
-                });
-              }
-              scope.results = [];
-              scope.$apply();
-              ($parse(attr.smartComplete)(scope).searchFunc || angular.noop)(csv, this.updateResults);
-            }, this.wait);
+              evt.preventDefault();
+              changeSelectedItem(isUp);
+            });
+
+          $$completor
+            .off('mouseenter.sc')
+            .on('mouseenter.sc', 'li', function() {
+              $(this).addClass(selectedClass);
+            })
+            .off('mouseleave.sc')
+            .on('mouseleave.sc', 'li', function() {
+              $$completor.children().removeClass(selectedClass);
+            })
+            .off('click.sc')
+            .on('click.sc', 'li', function() {
+              appendModelValue($(this).attr('value'));
+              $timeout(function() {
+                (__itemClickCb(scope) || angular.noop)($(this).attr('value'), $(this).attr('label'), elem.val());
+              });
+              $$completor.hide();
+            });
+
+          $(document).on('click.sc', function() {
+            $$completor.hide();
+          });
+        }
+
+
+        function getValueSlice() {
+          var caretPos = elem.caret('pos'),
+            sep = __sep(scope);
+          if (!sep) {
+            return elem.val();
+          }
+          sep += '';
+          var allVal = elem.val();
+          return allVal.substring(0, caretPos).split(sep).pop() + allVal.substring(caretPos).split(sep)[0];
+        }
+
+
+        function getCompletorPosStyle() {
+          var width = __width(scope),
+            height = parseInt(__height(scope), 10) || 240,
+            sep = __sep(scope),
+            elemPos = elem.position(),
+            elemWidth = elem.outerWidth(),
+            elemHeight = elem.outerHeight(),
+            caretPos = elem.caret('pos'),
+            caretPosition = elem.caret('position'),
+            allVal = elem.val(),
+            pos, cLeft, cTop;
+          if (!sep) {
+            pos = elem.caret('position', 0);
+            pos.left = 0;
+          } else {
+            sep += '';
+            pos = elem.caret('position', caretPos - allVal.substring(0, caretPos).split(sep).pop().length);
+          }
+          if (width === '100%') {
+            width = elem.outerWidth();
+            cLeft = 0;
+          } else {
+            width = parseInt(width, 10) || 240;
+            if (width >= elemWidth) {
+              cLeft = 0;
+            } else if (pos.left + width >= elemWidth) {
+              cLeft = elemWidth - width;
+            } else {
+              cLeft = pos.left;
+            }
           }
 
-          SmartComplete.prototype.registerObservers = function() {
-            this.inputor.bind('click.smartComplete', (function(_this) {
-              return function(evt) {
-                _this.updateCompletor(evt);
-              };
-            })(this));
-            this.inputor.bind('keyup.smartComplete', (function(_this) {
-              return function(evt) {
-                _this.updateCompletor(evt);
-              };
-            })(this));
-            this.inputor.bind('keydown.smartComplete', (function(_this) {
-              return function(evt) {
-                _this.inputorKeyDown(evt);
-              };
-            })(this));
-            this.inputor.bind('scroll.smartComplete', (function(_this) {
-              return function() {
-                _this.hideCompletor();
-              };
-            })(this));
-            return $(document).bind('click.smartComplete', (function(_this) {
-              return function(evt) {
-                _this.blurInputorClick(evt);
-              };
-            })(this));
-          };
-
-          SmartComplete.prototype.mouseEnterItem = function(evt) {
-            this.selectItem($(evt.currentTarget));
-          };
-
-          SmartComplete.prototype.blurInputorClick = function(evt) {
-            var target;
-            target = $(evt.target);
-            if (!(this.completorWrap.find(target).length || this.inputor[0] === target[0])) {
-              this.hideCompletor();
+          if (tagName === 'input') {
+            cTop = elemHeight;
+          } else {
+            cTop = caretPosition.top + caretPosition.height - elem.scrollTop();
+            if (caretPosition.top > pos.top) {
+              cLeft = 0;
             }
+          }
+          return {
+            width: width,
+            maxHeight: height,
+            left: elemPos.left + parseInt(elem.css('marginLeft'), 10) + cLeft,
+            top: elemPos.top + parseInt(elem.css('marginTop'), 10) + cTop + 2
           };
+        }
 
-          SmartComplete.prototype.inputorKeyDown = function(evt) {
-            var next, prev, selectItems, shouldSelectItem;
-            if (!scope.completor.showing) {
+        function updateCompletorItems() {
+          (__searchFunc(scope) || $scUtil.noopSearchFunc)(getValueSlice())
+          .then(function(items) {
+            return $.map(items, function(item) {
+              if (angular.isObject(item)) {
+                return item;
+              } else {
+                return {
+                  label: item,
+                  value: item
+                };
+              }
+            });
+          }, function() {
+            return [];
+          }).then(function(items) {
+            if (items.length === 0) {
+              $$completor.html('').hide();
               return;
             }
-            if (evt.which === 13) {
-              evt.preventDefault();
-            }
-            switch (evt.which) {
-              case 38:
-                if (!this.completor.find('.res-item').length) {
-                  return;
-                }
-                evt.preventDefault();
-                selectItems = this.completor.find('.current-selected');
-                if (selectItems.length) {
-                  prev = selectItems.first().prev();
-                  if (prev.length) {
-                    shouldSelectItem = prev;
-                  } else {
-                    shouldSelectItem = selectItems.first();
-                  }
-                } else {
-                  shouldSelectItem = this.completor.find('.res-item').last();
-                }
-                this.selectItem(shouldSelectItem);
-                this.appendInputorVal(shouldSelectItem.first().attr('value'));
-                break;
-              case 40:
-                if (!this.completor.find('.res-item').length) {
-                  return;
-                }
-                evt.preventDefault();
-                selectItems = this.completor.find('.current-selected');
-                if (selectItems.length) {
-                  next = selectItems.first().next();
-                  if (next.length) {
-                    shouldSelectItem = next;
-                  } else {
-                    shouldSelectItem = selectItems.last();
-                  }
-                } else {
-                  shouldSelectItem = this.completor.find('.res-item').first();
-                }
-                this.selectItem(shouldSelectItem);
-                this.appendInputorVal(shouldSelectItem.first().attr('value'));
-                break;
-            }
-          };
 
-          SmartComplete.prototype.appendInputorVal = function(value) {
-            var lv, pos, rps, sps, sv, val;
-            pos = this.inputor.caret('pos');
-            val = this.inputor.val();
-            lv = val.substring(0, pos);
-            sps = lv.split(this.sep);
-            sv = sps.pop();
-            sps.push(value);
-            if (val.substring(pos)) {
-              rps = val.substring(pos).split(this.sep);
-              rps.shift();
-              if (rps.join(this.sep)) {
-                sps.push(rps.join(this.sep));
+            $$completor.html($.map(items, function(item) {
+              return '<li value="' + item.value + '"' + 'label="' + item.label + '">' + item.label + '</li>';
+            }).join('')).css(getCompletorPosStyle()).show();
+          });
+        }
+
+        function changeSelectedItem(isUp) {
+          if ($$completor.is(':hidden')) {
+            return;
+          }
+          var items = $$completor.children();
+          if (items.length === 0) {
+            return;
+          }
+          var seletedItem = items.filter('.' + selectedClass).first(),
+            shouldSelectedItem = seletedItem;
+          if (seletedItem.length) {
+            if (isUp) {
+              var prev = seletedItem.prev();
+              if (prev.length) {
+                shouldSelectedItem = prev;
+              }
+            } else {
+              var next = seletedItem.next();
+              if (next.length) {
+                shouldSelectedItem = next;
               }
             }
-            this.inputor.val(sps.join(this.sep));
-            this.inputor.caret('pos', pos + value.length - sv.length);
-            this.inputor.focus();
-            this.inputor.trigger('change');
-          };
+          } else {
+            shouldSelectedItem = isUp ? items.last() : items.first();
+          }
+          items.removeClass(selectedClass);
+          shouldSelectedItem.addClass(selectedClass);
+          appendModelValue(shouldSelectedItem.attr('value'));
+          var itemTop = shouldSelectedItem.position().top,
+            min = 0,
+            max = $$completor.height() - shouldSelectedItem.height();
+          if (itemTop > max) {
+            $$completor.scrollTop($$completor.scrollTop() + itemTop - max);
+          }
+          if (itemTop < min) {
+            return $$completor.scrollTop($$completor.scrollTop() + itemTop - min);
+          }
+        }
 
-          SmartComplete.prototype.selectItem = function(item) {
-            var itemTop, max, min;
-            this.completor.find('.res-item').removeClass('current-selected');
-            item.addClass('current-selected');
-            itemTop = item.position().top;
-            min = 0;
-            max = this.completor.height() - item.height();
-            if (itemTop > max) {
-              this.completor.scrollTop(this.completor.scrollTop() + itemTop - max);
+        function appendModelValue(value) {
+          var sep = __sep(scope),
+            lv, pos, rps, sv, val, sps;
+          if (!sep) {
+            elem.val(value).focus().trigger('change');
+            return;
+          }
+          sep += '';
+          pos = elem.caret('pos');
+          val = elem.val();
+          lv = val.substring(0, pos);
+          sps = lv.split(sep);
+          sv = sps.pop();
+          sps.push(value);
+          if (val.substring(pos)) {
+            rps = val.substring(pos).split(sep);
+            rps.shift();
+            if (rps.join(sep)) {
+              sps.push(rps.join(sep));
             }
-            if (itemTop < min) {
-              return this.completor.scrollTop(this.completor.scrollTop() + itemTop - min);
-            }
-
-          };
-
-          SmartComplete.prototype.showCompletor = function() {
-            scope.completor.showing = true;
-            scope.$apply();
-          };
-
-          SmartComplete.prototype.hideCompletor = function() {
-            scope.completor.showing = false;
-            scope.$apply();
-          };
-
-          SmartComplete.prototype.updateResults = function(results) {
-            scope.results = results;
-          };
-
-          return SmartComplete;
-
-        })();
-        scope.completor = {
-          showing: false
-        };
-        sc = new SmartComplete($parse(attr.smartComplete)(scope));
-        sc.registerObservers();
-        scope.mouseEnterItem = sc.mouseEnterItem;
-        scope.appendInputorVal = sc.appendInputorVal;
-        scope.afterSelectItem = function(res) {
-          scope.appendInputorVal(res.value);
-          ($parse(attr.smartComplete)(scope).afterSelectItemCallback || angular.noop)(res.value, res.label);
-          scope.completor.showing = false;
-        };
+          }
+          elem.val(sps.join(sep))
+            .caret('pos', pos + value.length - sv.length);
+          elem.focus()
+            .trigger('change');
+        }
       }
     };
-  }
-]);
+  });

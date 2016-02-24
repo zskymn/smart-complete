@@ -34,6 +34,23 @@
         "$": true,
         "_": true,
         "jQuery": true,
-        "filterXSS": true
+        "filterXSS": true,
+        "moment": true,
+        "kbn": true,
+        "Lexer": true,
+        "Parser": true,
+        "gfunc": true,
+        "SeriesUtils": true,
+        "PanelMeta": true,
+        "TimeSeries": true,
+        "GraphTooltip": true,
+        "TargetParser": true,
+        "showdown": true,
+        "__dirname": true,
+        "describe": true,
+        "it": true,
+        "beforeEach": true,
+        "spyOn": true,
+        "expect": true
     }
 }
