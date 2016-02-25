@@ -21,7 +21,7 @@ angular.module('app', ['smart-complete']).controller('AppCtrl', function($scope,
       };
     }));
   };
-  return $scope.afterSelectUser = function(value, label) {
+  return $scope.selectedCb = function(value, label) {
     return console.log(value, label);
   };
 });

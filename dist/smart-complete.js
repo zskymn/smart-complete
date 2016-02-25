@@ -136,8 +136,9 @@ angular
             .off('click.sc')
             .on('click.sc', 'li', function() {
               appendModelValue($(this).attr('value'));
+              var itemVal = $(this).attr('value');
               $timeout(function() {
-                (__itemClickCb(scope) || angular.noop)($(this).attr('value'), $(this).attr('label'), elem.val());
+                (__itemClickCb(scope) || angular.noop)(itemVal, elem.val());
               });
               $$completor.hide();
             });
