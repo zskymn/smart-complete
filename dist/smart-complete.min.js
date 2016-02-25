@@ -1,5 +1,5 @@
 /*!
- * smart-complete - an angularjs directive which can complete expressions for input or textarea
+ * smart-complete - 为input和textarea提供提示补全功能的AngularJS指令
  * @version 2.0.0
  * @link https://github.com/zskymn/smart-complete#readme
  */
