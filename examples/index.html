@@ -9,6 +9,13 @@
   <title>Smart Complete Demo</title>
   <link rel="stylesheet"
     href="../dist/smart-complete.css"></link>
+
+  <style type="text/css"
+    media="screen">
+    body {
+      font-family: Helvetica Neue, Helvetica, Arial, Microsoft Yahei, Hiragino Sans GB, Heiti SC, WenQuanYi Micro Hei, sans-serif;
+    }
+  </style>
   <script src="../libs/jquery-2.0.3.js"
     type="text/javascript"
     charset="utf-8"></script>
@@ -18,7 +25,7 @@
   <script src="../libs/angular.js"
     type="text/javascript"
     charset="utf-8"></script>
-  <script src="../dist/smart-complete.js"
+  <script src="../dist/smart-complete.min.js"
     type="text/javascript"
     charset="utf-8"></script>
   <script src="app.js"
@@ -29,16 +36,16 @@
 <body>
   <div style="padding: 15px; width: 500px">
     <span>Demo for input: </span>
-    <input smart-complete="searchContacts"
-      sc-sep="','"
+    <input smart-complete="searchFunc"
+      sc-sep="'@@'"
       sc-width="'100%'"
-      sc-item-click-cb="afterSelectUser"
+      sc-item-click-cb="selectedCb"
       ng-model="aaa"
       style="padding: 4px; width: 300px; margin-top: 10px">
 
-      <div>{{aaa}}</div>
+    <div>{{aaa}}</div>
     <div style="padding: 25px 0 5px 0">Demo for textarea</div>
-    <textarea smart-complete="searchContacts"
+    <textarea smart-complete="searchFunc"
       sc-sep="','"
       sc-height="'400'"
       sc-width="'160'"

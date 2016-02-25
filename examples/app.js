@@ -1,16 +1,25 @@
 angular.module('app', ['smart-complete']).controller('AppCtrl', function($scope, $q) {
-  $scope.searchContacts = function(s) {
-    var i, rs, _i;
-    rs = [];
-    if (s !== null && s.length > 1) {
-      for (i = _i = 0; _i <= 10; i = ++_i) {
-        rs.push({
-          label: s + i,
-          value: s + i
-        });
-      }
-    }
-    return $q.when(rs);
+  $scope.searchFunc = function(s) {
+    var raw = [
+      'BeiJing', 'ShangHai', 'GuangZhou', 'TianJing', 'ChongQing', 'WenZhou',
+      'ShenZhen', 'HangZhou', 'ZhengZhou', 'HeFei', 'SuZhou', 'WuHan',
+      'HaErBin', 'ChangChun', 'ShenYang', 'ShiJiaZhuang', 'ChangSha'
+    ];
+
+    var reg = new RegExp((s + '').replace(/[^a-zA-Z0-9\-_]/g, function(s) {
+      return '\\' + s;
+    }), 'i', 'g');
+
+    return $q.when(raw.filter(function(item) {
+      return reg.test(item);
+    }).map(function(item) {
+      return {
+        value: item,
+        label: item.replace(reg, function(s) {
+          return '<b>' + s + '</b>';
+        })
+      };
+    }));
   };
   return $scope.afterSelectUser = function(value, label) {
     return console.log(value, label);

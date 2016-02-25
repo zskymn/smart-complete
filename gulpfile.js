@@ -1,35 +1,54 @@
+//{{{ require js
 var gulp = require('gulp'),
   plumber = require('gulp-plumber'),
   notify = require('gulp-notify'),
   del = require('del'),
   runSequence = require('run-sequence'),
+  ngAnnotate = require('gulp-ng-annotate'),
+  uglify = require('gulp-uglify'),
+  concat = require('gulp-concat'),
   postcss = require('gulp-postcss'),
   cssnext = require('cssnext'),
   precss = require('precss'),
   assets = require('postcss-assets'),
   rucksack = require('rucksack-css'),
+  cssnano = require('cssnano'),
   connect = require('gulp-connect'),
   header = require('gulp-header'),
   footer = require('gulp-footer'),
   KarmaServer = require('karma').Server;
+//}}}
+
+//{{{ rewrite gulp.src
+(function() {
+  var _gulpsrc = gulp.src;
+  gulp.src = function() {
+    return _gulpsrc.apply(gulp, arguments)
+      .pipe(plumber({
+        errorHandler: function(err) {
+          notify.onError({
+            title: "Gulp Error",
+            message: "Error: <%= error.message %>",
+            sound: "Bottle"
+          })(err);
+          this.emit('end');
+        }
+      }));
+  };
+})();
+//}}}
 
 var srcDir = 'src',
-  destDir = 'dist';
-
-var _gulpsrc = gulp.src;
-gulp.src = function() {
-  return _gulpsrc.apply(gulp, arguments)
-    .pipe(plumber({
-      errorHandler: function(err) {
-        notify.onError({
-          title: "Gulp Error",
-          message: "Error: <%= error.message %>",
-          sound: "Bottle"
-        })(err);
-        this.emit('end');
-      }
-    }));
-};
+  destDir = 'dist',
+  banner = [
+    '/*!',
+    ' * <%= pkg.name %> - <%= pkg.description %>',
+    ' * @version <%= pkg.version %>',
+    ' * @link <%= pkg.homepage %>',
+    ' */',
+    ''
+  ].join('\n'),
+  pkg = require('./package.json');
 
 gulp.task('clean', function() {
   return del([destDir + '/*']);
@@ -43,11 +62,21 @@ gulp.task('css', function() {
       assets(),
       rucksack()
     ]))
+    .pipe(header(banner, {
+      pkg: pkg
+    }))
+    .pipe(gulp.dest(destDir))
+    .pipe(concat('smart-complete.min.css'))
+    .pipe(postcss([cssnano({
+      autoprefixer: false,
+      safe: true
+    })]))
     .pipe(gulp.dest(destDir));
 });
 
 gulp.task('js', function() {
   return gulp.src(srcDir + '/js/smart-complete.js')
+    .pipe(ngAnnotate())
     .pipe(header([
       "(function(root, factory) {",
       "  if (typeof define === 'function' && define.amd) {",
@@ -61,6 +90,14 @@ gulp.task('js', function() {
       ""
     ].join('\n')))
     .pipe(footer("}));"))
+    .pipe(header(banner, {
+      pkg: pkg
+    }))
+    .pipe(gulp.dest(destDir))
+    .pipe(uglify({
+      preserveComments: 'license'
+    }))
+    .pipe(concat('smart-complete.min.js'))
     .pipe(gulp.dest(destDir));
 });
 

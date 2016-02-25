@@ -34,7 +34,7 @@ angular
     return {
       restrict: 'A',
       link: function(scope, elem, attrs) {
-        var tagName, __searchFunc, __sep, __width, __height, __itemClickCb, __enterCb, $$completor, selectedClass = 'current-selected';
+        var tagName, __searchFunc, __sep, __width, __height, __itemClickCb, __enterCb, $$completor, selectedClass;
         activate();
 
         function activate() {
@@ -45,6 +45,7 @@ angular
           __height = $parse(attrs.scHeight);
           __itemClickCb = $parse(attrs.scItemClickCb);
           __enterCb = $parse(attrs.scEnterCb);
+          selectedClass = 'current-selected';
 
           if (tagName !== 'input' && tagName !== 'textarea') {
             throw 'tagName must be input or textarea';
@@ -194,7 +195,8 @@ angular
         }
 
         function updateCompletorItems() {
-          (__searchFunc(scope) || $scUtil.noopSearchFunc)(getValueSlice())
+          var sliceVal = getValueSlice();
+          (__searchFunc(scope) || $scUtil.noopSearchFunc)(sliceVal)
           .then(function(items) {
             return $.map(items, function(item) {
               if (angular.isObject(item)) {
@@ -215,7 +217,7 @@ angular
             }
 
             $$completor.html($.map(items, function(item) {
-              return '<li value="' + item.value + '"' + 'label="' + item.label + '">' + item.label + '</li>';
+              return '<li value="' + item.value + '">' + item.label + '</li>';
             }).join('')).css(getCompletorPosStyle()).show();
           });
         }
