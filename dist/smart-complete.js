@@ -1,6 +1,6 @@
 /*!
  * smart-complete - an angularjs directive which can complete expressions for input or textarea
- * @version 1.0.11
+ * @version 2.0.0
  * @link https://github.com/zskymn/smart-complete#readme
  */
 (function(root, factory) {
