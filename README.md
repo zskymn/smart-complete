@@ -21,6 +21,8 @@ angular.module('app', ['smart-complete']);
   sc-item-click-cb="itemClickCb" sc-enter-cb="enterCb">
 ```
 
+Demo: [http://codepen.io/zskymn/pen/dMbNNb](http://codepen.io/zskymn/pen/dMbNNb)
+
 # 开发
 ```sh
 $ npm installl
