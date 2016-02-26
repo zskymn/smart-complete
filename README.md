@@ -1,5 +1,6 @@
-# 简介
-smart-complete是一个为input和textarea提供提示补全功能的AngularJS指令
+### Smart-complete -- 为input和textarea提供提示补全功能的AngularJS指令
+
+[![Build Status](https://travis-ci.org/zskymn/smart-complete.svg?branch=master)](https://travis-ci.org/zskymn/smart-complete)
 
 # 依赖
 * [AngularJS](http://angularjs.org/)
