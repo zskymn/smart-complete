@@ -1,5 +1,6 @@
 //{{{ require js
 var gulp = require('gulp'),
+  argv = require('yargs').argv,
   plumber = require('gulp-plumber'),
   notify = require('gulp-notify'),
   del = require('del'),
@@ -102,6 +103,9 @@ gulp.task('js', function() {
 });
 
 gulp.task('watch', function() {
+  if (argv.production) {
+    return;
+  }
   gulp.watch(srcDir + '/js/**/*', function() {
     runSequence('js');
   });
@@ -114,6 +118,9 @@ gulp.task('watch', function() {
 });
 
 gulp.task('connect', function() {
+  if (argv.production) {
+    return;
+  }
   connect.server({
     root: '',
     livereload: true
@@ -123,7 +130,7 @@ gulp.task('connect', function() {
 gulp.task('test', function(done) {
   new KarmaServer({
     configFile: __dirname + '/karma.conf.js',
-    singleRun: false
+    singleRun: !!argv.production
   }, function() {
     done();
   }).start();

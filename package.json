@@ -26,7 +26,8 @@
     "postcss-assets": "4.0.1",
     "precss": "1.4.0",
     "rucksack-css": "0.8.5",
-    "run-sequence": "1.1.5"
+    "run-sequence": "1.1.5",
+    "yargs": "4.2.0"
   },
   "main": " ",
   "directories": {
