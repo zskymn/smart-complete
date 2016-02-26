@@ -130,5 +130,5 @@ gulp.task('test', function(done) {
 });
 
 gulp.task('default', function(cb) {
-  runSequence('clean', ['js', 'css'], 'connect', 'watch', cb);
+  runSequence('clean', ['js', 'css'], 'connect', 'watch', 'test', cb);
 });

@@ -51,6 +51,9 @@
         "it": true,
         "beforeEach": true,
         "spyOn": true,
-        "expect": true
+        "expect": true,
+        "inject": true,
+        "afterEach": true,
+        "jasmine": true
     }
 }
