@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/zskymn/smart-complete.svg?branch=master)](https://travis-ci.org/zskymn/smart-complete)
 [![devDependency Status](https://david-dm.org/zskymn/smart-complete/dev-status.svg)](https://david-dm.org/zskymn/smart-complete#info=devDependencies)
+[![Coverage Status](https://coveralls.io/repos/github/zskymn/smart-complete/badge.svg?branch=master)](https://coveralls.io/github/zskymn/smart-complete?branch=master)
 
 # 依赖
 * [AngularJS](http://angularjs.org/)
