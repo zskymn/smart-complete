@@ -3,8 +3,8 @@
   "description": "为input和textarea提供提示补全功能的AngularJS指令",
   "version": "2.0.2",
   "devDependencies": {
+    "coveralls": "2.11.8",
     "cssnano": "3.5.2",
-    "cssnext": "1.8.4",
     "del": "2.2.0",
     "gulp": "3.9.1",
     "gulp-concat": "2.6.0",
@@ -24,6 +24,7 @@
     "karma-phantomjs-launcher": "1.0.0",
     "phantomjs-prebuilt": "2.1.4",
     "postcss-assets": "4.0.1",
+    "postcss-cssnext": "2.4.0",
     "precss": "1.4.0",
     "rucksack-css": "0.8.5",
     "run-sequence": "1.1.5",

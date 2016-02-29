@@ -5,16 +5,15 @@ var gulp = require('gulp'),
   notify = require('gulp-notify'),
   del = require('del'),
   runSequence = require('run-sequence'),
+  connect = require('gulp-connect'),
   ngAnnotate = require('gulp-ng-annotate'),
   uglify = require('gulp-uglify'),
   concat = require('gulp-concat'),
   postcss = require('gulp-postcss'),
-  cssnext = require('cssnext'),
-  precss = require('precss'),
+  cssnext = require('postcss-cssnext'),
   assets = require('postcss-assets'),
-  rucksack = require('rucksack-css'),
+  precss = require('precss'),
   cssnano = require('cssnano'),
-  connect = require('gulp-connect'),
   header = require('gulp-header'),
   footer = require('gulp-footer'),
   KarmaServer = require('karma').Server;
@@ -56,23 +55,22 @@ gulp.task('clean', function() {
 });
 
 gulp.task('css', function() {
-  return gulp.src(srcDir + '/css/smart-complete.css')
-    .pipe(postcss([
-      precss(),
-      cssnext({}),
-      assets(),
-      rucksack()
-    ]))
-    .pipe(header(banner, {
-      pkg: pkg
-    }))
-    .pipe(gulp.dest(destDir))
-    .pipe(concat('smart-complete.min.css'))
-    .pipe(postcss([cssnano({
-      autoprefixer: false,
-      safe: true
-    })]))
-    .pipe(gulp.dest(destDir));
+    return gulp.src(srcDir + '/css/smart-complete.css')
+      .pipe(postcss([
+        precss(),
+        cssnext({}),
+        assets()
+      ]))
+      .pipe(header(banner, {
+        pkg: pkg
+      }))
+      .pipe(gulp.dest(destDir))
+      .pipe(concat('smart-complete.min.css'))
+      .pipe(postcss([cssnano({
+        autoprefixer: false,
+        safe: true
+      })]))
+      .pipe(gulp.dest(destDir));
 });
 
 gulp.task('js', function() {
