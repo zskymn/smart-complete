@@ -92,12 +92,25 @@ describe('[module]smart-complete', function() {
       beforeEach(function() {
         scope.searchFunc = function(s) {
           return $q.when(['hate', 'love', 'like'].filter(function(item) {
+            console.log(item.indexOf(s));
             return item.indexOf(s) !== -1;
           }));
         };
         scope.sep = false;
+        scope.width = '100%';
+        scope.height = '200';
+        scope.itemClickCb = function() {};
+        scope.enterCb = function() {};
 
-        $$input = $('<input smart-complete="searchFunc" sc-sep="sep">');
+        $$input = $([
+          '<input style="width: 200px" smart-complete="searchFunc"',
+          'sc-sep="sep"',
+          'sc-width="width"',
+          'sc-height="height"',
+          'sc-item-click-cb="itemClickCb"',
+          'sc-enter-cb="enterCb"',
+          '>'
+        ].join(' '));
         $('body').html($$input);
         $compile($$input)(scope);
         $$completor = $$input.next();
@@ -125,7 +138,8 @@ describe('[module]smart-complete', function() {
 
       it('should show 2 items when type key "l"', function() {
         $$input.val('l');
-        triggerInputKeyup(0);
+        triggerInputKeyDown('l'.charCodeAt());
+        triggerInputKeyup('l'.charCodeAt());
         $timeout.flush(300);
         expect($$completor.children().length).toBe(2);
       });
@@ -165,6 +179,17 @@ describe('[module]smart-complete', function() {
         scope.$digest();
         expect($$completor.is(':visible')).toBe(true);
         triggerInputKeyDown(13);
+        $timeout.flush(10);
+        expect($$completor.is(':visible')).toBe(false);
+      });
+
+      it('completor should be hidden after type key tab', function() {
+        $$input.trigger('click');
+        scope.$digest();
+        expect($$completor.is(':visible')).toBe(true);
+        triggerInputKeyDown(9);
+        triggerInputKeyup(9);
+        $timeout.flush(300);
         expect($$completor.is(':visible')).toBe(false);
       });
 
@@ -177,8 +202,35 @@ describe('[module]smart-complete', function() {
         firstItem.trigger('mouseleave');
         expect(firstItem.hasClass(selectedClass)).toBe(false);
         firstItem.trigger('click');
+        $timeout.flush(10);
         expect($$completor.is(':visible')).toBe(false);
         expect($$input.val()).toBe('hate');
+      });
+
+      it('items shuould be empty when smart-complete return $q.reject', function() {
+        scope.searchFunc = function() {
+          return $q.reject();
+        };
+        $$input.trigger('click');
+        scope.$digest();
+        expect($$completor.children().length).toBe(0);
+      });
+
+      it('left of completor should be 112', function() {
+        scope.width = '100';
+        scope.sep = ',';
+        $$completor.css({
+          position: 'absolute'
+        });
+        $$input.val('loooooooooooooooooooooooooooooooooooooooooooogword,hate,like');
+        $$input.trigger('click');
+        $$input.caret('pos', 56);
+        scope.$digest();
+        expect($$completor.position().left).toBe(112);
+        triggerInputKeyDown(38);
+        triggerInputKeyup(38);
+        $timeout.flush(300);
+        expect($$input.val()).toBe('loooooooooooooooooooooooooooooooooooooooooooogword,hate,like');
       });
     });
 
