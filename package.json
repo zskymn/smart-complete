@@ -1,7 +1,7 @@
 {
   "name": "smart-complete",
   "description": "为input和textarea提供提示补全功能的AngularJS指令",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "devDependencies": {
     "coveralls": "2.11.8",
     "cssnano": "3.5.2",

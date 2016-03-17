@@ -92,7 +92,6 @@ describe('[module]smart-complete', function() {
       beforeEach(function() {
         scope.searchFunc = function(s) {
           return $q.when(['hate', 'love', 'like'].filter(function(item) {
-            console.log(item.indexOf(s));
             return item.indexOf(s) !== -1;
           }));
         };
