@@ -98,12 +98,14 @@ describe('[module]smart-complete', function() {
         scope.sep = false;
         scope.width = '100%';
         scope.height = '200';
+        scope.trim = '';
         scope.itemClickCb = function() {};
         scope.enterCb = function() {};
 
         $$input = $([
           '<input style="width: 200px" smart-complete="searchFunc"',
           'sc-sep="sep"',
+          'sc-trim="trim"',
           'sc-width="width"',
           'sc-height="height"',
           'sc-item-click-cb="itemClickCb"',
@@ -172,6 +174,17 @@ describe('[module]smart-complete', function() {
         expect($$completor.children().last().hasClass(selectedClass)).toBe(true);
         expect($$input.val()).toBe('hate,like');
       });
+
+      it('when trim is "false", should show 0 items when iput word "hate,  l"', function() {
+        scope.sep = ',';
+        scope.trim = false;
+        scope.$digest();
+        $$input.val('hate,  l');
+        triggerInputKeyup(0);
+        $timeout.flush(300);
+        expect($$completor.children().length).toBe(0);
+      });
+
 
       it('completor should be hidden after type key enter', function() {
         $$input.trigger('click');

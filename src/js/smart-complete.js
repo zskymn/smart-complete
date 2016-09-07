@@ -3,7 +3,7 @@ angular
 
 angular
   .module('smart-complete')
-  .service('$scUtil', function($timeout, $q) {
+  .service('$scUtil', function ($timeout, $q) {
     var vm = this;
     vm.debounce = debounce;
     vm.noopSearchFunc = noopSearchFunc;
@@ -13,11 +13,11 @@ angular
       if (wait !== 0 && !wait) {
         wait = 300;
       }
-      return function() {
+      return function () {
         var context = this,
           args = arguments;
         $timeout.cancel(timeoutPromise);
-        return (timeoutPromise = $timeout(function() {
+        return (timeoutPromise = $timeout(function () {
           return func.apply(context, args);
         }, wait));
       };
@@ -30,17 +30,18 @@ angular
 
 angular
   .module('smart-complete')
-  .directive('smartComplete', function($parse, $scUtil, $timeout) {
+  .directive('smartComplete', function ($parse, $scUtil, $timeout) {
     return {
       restrict: 'A',
-      link: function(scope, elem, attrs) {
-        var tagName, __searchFunc, __sep, __width, __height, __itemClickCb, __enterCb, $$completor, selectedClass;
+      link: function (scope, elem, attrs) {
+        var tagName, __searchFunc, __sep, __scTrim, __width, __height, __itemClickCb, __enterCb, $$completor, selectedClass;
         activate();
 
         function activate() {
           tagName = elem[0].tagName.toLowerCase();
           __searchFunc = $parse(attrs.smartComplete);
           __sep = $parse(attrs.scSep);
+          __scTrim = $parse(attrs.scTrim || 'true');
           __width = $parse(attrs.scWidth);
           __height = $parse(attrs.scHeight);
           __itemClickCb = $parse(attrs.scItemClickCb);
@@ -54,6 +55,14 @@ angular
           elem.after($$completor);
           initStyle();
           registObservers();
+        }
+
+        function _trimValue(value) {
+          if (__scTrim(scope)) {
+            return $.trim(value);
+          } else {
+            return value;
+          }
         }
 
         function initStyle() {
@@ -74,7 +83,7 @@ angular
             .off('click.sc')
             .on('click.sc', updateCompletorItems)
             .off('keyup.sc')
-            .on('keyup.sc', $scUtil.debounce(function(evt) {
+            .on('keyup.sc', $scUtil.debounce(function (evt) {
               var code = evt.which;
               if (code === 13 || code === 38 || code === 40 || code === 9) {
                 return;
@@ -82,7 +91,7 @@ angular
               updateCompletorItems();
             }))
             .off('keydown.sc')
-            .on('keydown.sc', function(evt) {
+            .on('keydown.sc', function (evt) {
               var code = evt.which,
                 isUp;
               if (code === 13) {
@@ -90,8 +99,8 @@ angular
                   evt.preventDefault();
                   $$completor.hide();
                 }
-                $timeout(function() {
-                  (__enterCb(scope) || angular.noop)(elem.val());
+                $timeout(function () {
+                  (__enterCb(scope) || angular.noop)(_trimValue(elem.val()));
                 });
                 return;
               } else if (code === 9) {
@@ -112,28 +121,27 @@ angular
 
           $$completor
             .off('mouseenter.sc')
-            .on('mouseenter.sc', 'li', function() {
+            .on('mouseenter.sc', 'li', function () {
               $(this).addClass(selectedClass);
             })
             .off('mouseleave.sc')
-            .on('mouseleave.sc', 'li', function() {
+            .on('mouseleave.sc', 'li', function () {
               $$completor.children().removeClass(selectedClass);
             })
             .off('click.sc')
-            .on('click.sc', 'li', function() {
+            .on('click.sc', 'li', function () {
               appendModelValue($(this).attr('value'));
               var itemVal = $(this).attr('value');
-              $timeout(function() {
+              $timeout(function () {
                 (__itemClickCb(scope) || angular.noop)(itemVal, elem.val());
               });
               $$completor.hide();
             });
 
-          $(document).on('click.sc', function() {
+          $(document).on('click.sc', function () {
             $$completor.hide();
           });
         }
-
 
         function getValueSlice() {
           var caretPos = elem.caret('pos'),
@@ -145,7 +153,6 @@ angular
           var allVal = elem.val();
           return allVal.substring(0, caretPos).split(sep).pop() + allVal.substring(caretPos).split(sep)[0];
         }
-
 
         function getCompletorPosStyle() {
           var width = __width(scope),
@@ -197,9 +204,9 @@ angular
 
         function updateCompletorItems() {
           var sliceVal = getValueSlice();
-          (__searchFunc(scope) || $scUtil.noopSearchFunc)(sliceVal)
-          .then(function(items) {
-            return $.map(items, function(item) {
+          (__searchFunc(scope) || $scUtil.noopSearchFunc)(_trimValue(sliceVal))
+          .then(function (items) {
+            return $.map(items, function (item) {
               if (angular.isObject(item)) {
                 return item;
               } else {
@@ -209,15 +216,15 @@ angular
                 };
               }
             });
-          }, function() {
+          }, function () {
             return [];
-          }).then(function(items) {
+          }).then(function (items) {
             if (items.length === 0) {
               $$completor.html('').hide();
               return;
             }
 
-            $$completor.html($.map(items, function(item) {
+            $$completor.html($.map(items, function (item) {
               return '<li value="' + item.value + '">' + item.label + '</li>';
             }).join('')).css(getCompletorPosStyle()).show();
           });

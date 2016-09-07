@@ -1,57 +1,49 @@
 <!DOCTYPE HTML>
-<html ng-app="app"
-  ng-controller="AppCtrl">
+<html ng-app="app" ng-controller="AppCtrl">
 
-<head>
-  <meta http-equiv="content-type"
-    content="text/html; charset=utf-8">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-  <title>Smart Complete Demo</title>
-  <link rel="stylesheet"
-    href="../dist/smart-complete.css"></link>
+    <title>Smart Complete Demo</title>
+    <link rel="stylesheet" href="../dist/smart-complete.css"></link>
 
-  <style type="text/css"
-    media="screen">
-    body {
-      font-family: Helvetica Neue, Helvetica, Arial, Microsoft Yahei, Hiragino Sans GB, Heiti SC, WenQuanYi Micro Hei, sans-serif;
-    }
-  </style>
-  <script src="../libs/jquery-2.0.3.js"
-    type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../libs/jquery.caret.js"
-    type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../libs/angular.js"
-    type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../dist/smart-complete.min.js"
-    type="text/javascript"
-    charset="utf-8"></script>
-  <script src="app.js"
-    type="text/javascript"
-    charset="utf-8"></script>
-</head>
+    <style type="text/css" media="screen">
+      body {
+        font-family: Helvetica Neue, Helvetica, Arial, Microsoft Yahei, Hiragino Sans GB, Heiti SC, WenQuanYi Micro Hei, sans-serif;
+      }
 
-<body>
-  <div style="padding: 15px; width: 500px">
-    <span>Demo for input: </span>
-    <input smart-complete="searchFunc"
-      sc-sep="','"
-      sc-width="'100%'"
-      sc-item-click-cb="selectedCb"
-      ng-model="aaa"
-      style="padding: 4px; width: 300px; margin-top: 10px">
+    </style>
+    <script src="../libs/jquery-2.0.3.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../libs/jquery.caret.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../libs/angular.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../dist/smart-complete.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="app.js" type="text/javascript" charset="utf-8"></script>
+  </head>
 
-    <div>{{aaa}}</div>
-    <div style="padding: 25px 0 5px 0">Demo for textarea</div>
-    <textarea smart-complete="searchFunc"
-      sc-sep="','"
-      sc-height="'400'"
-      sc-width="'160'"
-      style="padding: 4px; width: 400px; height: 80px; margin-top:10px"></textarea>
-  </div>
+  <body>
+    <div style="padding: 15px; width: 500px">
+      <span>Demo for input:
+      </span>
+      <input
+        smart-complete="searchFunc"
+        sc-sep="','"
+        sc-width="'100%'"
+        sc-item-click-cb="selectedCb"
+        ng-model="aaa"
+        sc-enter-cb="enterCb"
+        style="padding: 4px; width: 300px; margin-top: 10px">
 
-</body>
+      <div>{{aaa}}</div>
+      <div style="padding: 25px 0 5px 0">Demo for textarea</div>
+      <textarea
+        smart-complete="searchFunc"
+        sc-sep="','"
+        sc-height="'400'"
+        sc-width="'160'"
+        sc-trim="false"
+        style="padding: 4px; width: 400px; height: 80px; margin-top:10px"></textarea>
+    </div>
+
+  </body>
 
 </html>
