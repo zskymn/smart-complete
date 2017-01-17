@@ -51,6 +51,7 @@ angular
           if (tagName !== 'input' && tagName !== 'textarea') {
             throw 'tagName must be input or textarea';
           }
+
           $$completor = $('<ul class="smart-complete"></ul>');
           elem.after($$completor);
           initStyle();
@@ -194,11 +195,25 @@ angular
               cLeft = 0;
             }
           }
+
+          var _scrollTop = 0,
+            _scrollLeft = 0;
+
+          var parent = elem.parents().filter(function () {
+            var p = $(this).css('position');
+            return p === 'absolute' || p === 'fixed' || p === 'relative';
+          })[0];
+          if (parent) {
+            var $$parent = $(parent);
+            _scrollTop = $$parent.scrollTop();
+            _scrollLeft = $$parent.scrollLeft();
+          }
+
           return {
             width: width,
             maxHeight: height,
-            left: elemPos.left + parseInt(elem.css('marginLeft'), 10) + cLeft,
-            top: elemPos.top + parseInt(elem.css('marginTop'), 10) + cTop + 2
+            left: elemPos.left + _scrollLeft + parseInt(elem.css('marginLeft'), 10) + cLeft,
+            top: elemPos.top + _scrollTop + parseInt(elem.css('marginTop'), 10) + cTop + 2
           };
         }
 
@@ -224,9 +239,13 @@ angular
               return;
             }
 
-            $$completor.html($.map(items, function (item) {
-              return '<li value="' + item.value + '">' + item.label + '</li>';
-            }).join('')).css(getCompletorPosStyle()).show();
+            $$completor
+              .html($.map(items, function (item) {
+                return '<li value="' + item.value + '">' + item.label + '</li>';
+              }).join(''))
+              .css(getCompletorPosStyle())
+              .show()
+              .css(getCompletorPosStyle());
           });
         }
 
