@@ -2,3 +2,5 @@ node_modules
 npm-debug.log
 .sass-cache
 coverage
+package-lock.json
+.vscode

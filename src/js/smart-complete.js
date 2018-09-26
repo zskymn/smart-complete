@@ -144,34 +144,74 @@ angular
           });
         }
 
-        function getValueSlice() {
-          var caretPos = elem.caret('pos'),
-            sep = __sep(scope);
-          if (!sep) {
+        function getSepsPos() {
+          var caretPos = elem.caret('pos'), seps = __sep(scope);
+          if (!$.isArray(seps)) {
+            seps = [seps + ''];
+          }
+          if (!seps.length) {
             return elem.val();
           }
-          sep += '';
           var allVal = elem.val();
-          return allVal.substring(0, caretPos).split(sep).pop() + allVal.substring(caretPos).split(sep)[0];
+          var lsep = '', lsepIdx = -1, rsep = '', rsepIdx = -1;
+          $.each(seps, function (_idx, _sep) {
+            if (_sep) {
+              var _lsepIdx = allVal.substring(0, caretPos).lastIndexOf(_sep);
+              if (_lsepIdx > lsepIdx) {
+                lsepIdx = _lsepIdx;
+                lsep = _sep;
+              }
+              var _rsepIdx = allVal.substring(caretPos).indexOf(_sep);
+
+              if (_rsepIdx >  -1) {
+                if (rsepIdx > -1) {
+                  if (_rsepIdx < rsepIdx) {
+                    rsepIdx = _rsepIdx;
+                    rsep = _sep;
+                  }
+                } else {
+                  rsepIdx = _rsepIdx;
+                  rsep = _sep;
+                }
+              }
+            }
+          });
+          var left = '', right = '';
+
+          if (lsepIdx > -1) {
+            left = allVal.substring(0, lsepIdx);
+          }
+
+          if (rsepIdx > -1) {
+            rsepIdx = rsepIdx + caretPos;
+            right = allVal.substring(rsepIdx + rsep.length);
+          }
+          return {
+            left: left,
+            right: right,
+            lsep: lsep,
+            lsepIdx: lsepIdx,
+            rsep: rsep,
+            rsepIdx: rsepIdx
+          };
         }
 
         function getCompletorPosStyle() {
           var width = __width(scope),
             height = parseInt(__height(scope), 10) || 240,
-            sep = __sep(scope),
+            sepsPos = getSepsPos(),
             elemPos = elem.position(),
             elemWidth = elem.outerWidth(),
             elemHeight = elem.outerHeight(),
-            caretPos = elem.caret('pos'),
             caretPosition = elem.caret('position'),
-            allVal = elem.val(),
             pos, cLeft, cTop;
-          if (!sep) {
+
+          var lsepIdx = sepsPos.lsepIdx;
+          if (lsepIdx === -1) {
             pos = elem.caret('position', 0);
             pos.left = 0;
           } else {
-            sep += '';
-            pos = elem.caret('position', caretPos - allVal.substring(0, caretPos).split(sep).pop().length);
+            pos = elem.caret('position', lsepIdx + 1);
           }
           if (width === '100%') {
             width = elem.outerWidth();
@@ -218,35 +258,48 @@ angular
         }
 
         function updateCompletorItems() {
-          var sliceVal = getValueSlice();
-          (__searchFunc(scope) || $scUtil.noopSearchFunc)(_trimValue(sliceVal))
-          .then(function (items) {
-            return $.map(items, function (item) {
-              if (angular.isObject(item)) {
-                return item;
-              } else {
-                return {
-                  label: item,
-                  value: item
-                };
-              }
-            });
-          }, function () {
-            return [];
-          }).then(function (items) {
-            if (items.length === 0) {
-              $$completor.html('').hide();
-              return;
-            }
+          var sepsPos = getSepsPos();
+          var allVal = elem.val();
+          var lsep = sepsPos.lsep, lsepIdx = sepsPos.lsepIdx, rsepIdx = sepsPos.rsepIdx, rsep = sepsPos.rsep, left = sepsPos.left, right = sepsPos.right;
 
-            $$completor
-              .html($.map(items, function (item) {
-                return '<li value="' + item.value + '">' + item.label + '</li>';
-              }).join(''))
-              .css(getCompletorPosStyle())
-              .show()
-              .css(getCompletorPosStyle());
-          });
+          var _from = 0, _to = allVal.length;
+
+          if (lsepIdx > -1) {
+            _from = lsepIdx + lsep.length;
+          }
+          if (rsepIdx > -1) {
+            _to = rsepIdx;
+          }
+
+          var sliceVal = allVal.substring(_from, _to);
+          (__searchFunc(scope) || $scUtil.noopSearchFunc)(_trimValue(sliceVal), lsep, left, rsep, right)
+            .then(function (items) {
+              return $.map(items, function (item) {
+                if (angular.isObject(item)) {
+                  return item;
+                } else {
+                  return {
+                    label: item,
+                    value: item
+                  };
+                }
+              });
+            }, function () {
+              return [];
+            }).then(function (items) {
+              if (items.length === 0) {
+                $$completor.html('').hide();
+                return;
+              }
+
+              $$completor
+                .html($.map(items, function (item) {
+                  return '<li value="' + item.value + '">' + item.label + '</li>';
+                }).join(''))
+                .css(getCompletorPosStyle())
+                .show()
+                .css(getCompletorPosStyle());
+            });
         }
 
         function changeSelectedItem(isUp) {
@@ -289,28 +342,21 @@ angular
         }
 
         function appendModelValue(value) {
-          var sep = __sep(scope),
-            lv, pos, rps, sv, val, sps;
-          if (!sep) {
-            elem.val(value).focus().trigger('change');
-            return;
+          var sepsPos = getSepsPos();
+          var lsep = sepsPos.lsep, rsep = sepsPos.rsep, left = sepsPos.left, right = sepsPos.right;
+          var shouldVal = '';
+
+          if (left) {
+            shouldVal += (left + lsep);
           }
-          sep += '';
-          pos = elem.caret('pos');
-          val = elem.val();
-          lv = val.substring(0, pos);
-          sps = lv.split(sep);
-          sv = sps.pop();
-          sps.push(value);
-          if (val.substring(pos)) {
-            rps = val.substring(pos).split(sep);
-            rps.shift();
-            if (rps.join(sep)) {
-              sps.push(rps.join(sep));
-            }
+          shouldVal += value;
+          var _caret = shouldVal.length;
+          if (right) {
+            shouldVal += (rsep + right);
           }
-          elem.val(sps.join(sep))
-            .caret('pos', pos + value.length - sv.length);
+
+          elem.val(shouldVal)
+            .caret('pos', _caret);
           elem.focus()
             .trigger('change');
         }
